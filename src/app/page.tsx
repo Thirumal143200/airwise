@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/Navbar";
 import { AqiHeroCard } from "@/components/AqiHeroCard";
 import { PollutantsGrid } from "@/components/PollutantsGrid";
@@ -64,33 +64,36 @@ export default function Home() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Fetch air quality data
-  const fetchAirQuality = async (cityName: string, lat: number, lng: number, chosenScale: AirQualityScale) => {
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-      const res = await fetch(
-        `/api/air-quality?city=${encodeURIComponent(cityName)}&lat=${lat}&lng=${lng}&scale=${chosenScale}`
-      );
-      if (!res.ok) {
-        throw new Error(`Air Quality API error (${res.status})`);
-      }
-      const data: AirQualityData = await res.json();
-      setAqiData(data);
+  const fetchAirQuality = useCallback(
+    async (cityName: string, lat: number, lng: number, chosenScale: AirQualityScale) => {
+      setIsLoading(true);
+      setFetchError(null);
+      try {
+        const res = await fetch(
+          `/api/air-quality?city=${encodeURIComponent(cityName)}&lat=${lat}&lng=${lng}&scale=${chosenScale}`
+        );
+        if (!res.ok) {
+          throw new Error(`Air Quality API error (${res.status})`);
+        }
+        const data: AirQualityData = await res.json();
+        setAqiData(data);
 
-      // Generate initial routine
-      const slots = generateDailyRoutine(data, profile);
-      setRoutine(slots);
-    } catch (err: any) {
-      console.error("Failed to load air quality:", err);
-      setFetchError("Unable to retrieve live environmental feed. Please retry or pick another city.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        // Generate initial routine
+        const slots = generateDailyRoutine(data, profile);
+        setRoutine(slots);
+      } catch (err: any) {
+        console.error("Failed to load air quality:", err);
+        setFetchError("Unable to retrieve live environmental feed. Please retry or pick another city.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [profile]
+  );
 
   useEffect(() => {
     fetchAirQuality(currentCity, coords.lat, coords.lng, scale);
-  }, [currentCity, coords.lat, coords.lng, scale]);
+  }, [currentCity, coords.lat, coords.lng, scale, fetchAirQuality]);
 
   const handleLocationSelect = (city: string, lat: number, lng: number) => {
     setCurrentCity(city);

@@ -29,7 +29,7 @@ export function generateDeterministicCopilotPlan(
     return {
       recommendation: "Implement strict pediatric and elder vulnerability protections indoors.",
       reason:
-        `Children breathe 50% more air per kilogram of body weight than adults and have developing alveolar architecture. Current measured AQI (${aqi}) poses acute bronchospastic risk.`,
+        `Children breathe 50% more air per kilogram of body weight than adults (WHO and American Academy of Pediatrics pediatric exposure benchmarks) and have developing alveolar architecture. Current measured AQI (${aqi}) poses acute bronchospastic risk.`,
       practicalAction:
         "Ensure children remain indoors during early morning hours. Suspend outdoor sports sessions at school. Check that rescue inhalers are readily accessible for anyone with asthma. Use damp mopping instead of dry dusting.",
       estimatedImpact:

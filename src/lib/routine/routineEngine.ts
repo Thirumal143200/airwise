@@ -49,7 +49,7 @@ export function generateDailyRoutine(
       whatToDo:
         "Avoid vigorous outdoor jogging or cycling. If commuting by two-wheeler or foot, wear a certified, well-fitted N95 / FFP2 respirator. Keep vehicle windows closed with AC set to recirculation mode.",
       whySuggested:
-        "Moderate pollution triggers bronchospasm in sensitive airways. Heavy breathing increases minute ventilation volume from 6 L/min at rest to over 40 L/min, driving particulate matter deeper into the respiratory bronchioles.",
+        "Moderate pollution triggers bronchospasm in sensitive airways. Strenuous outdoor cardiovascular exercise elevates minute ventilation volume from approximately 6 L/min at rest to 40–60 L/min, multiplying inhaled particulate mass and driving fine particles deeper into the pulmonary bronchioles.",
       whenMostUseful: "During the 07:30 - 09:30 AM peak traffic congestion.",
       alternativeOption:
         profile.commuteMode.includes("two_wheeler") || profile.commuteMode.includes("walking")
@@ -95,7 +95,7 @@ export function generateDailyRoutine(
       whatToDo:
         "If you must step outside for medical visits, grocery restocking, or urgent errands, schedule them strictly in this midday window. Conduct brief (10–15 min) cross-ventilation only if indoor $CO_2$ feels stale and outdoor sun is active.",
       whySuggested:
-        "Solar convection reaches its peak between 12:00 PM and 2:30 PM, lifting the atmospheric boundary layer and diluting ground particulate concentrations by 30–50% compared to dawn and dusk.",
+        "Solar convection reaches its diurnal peak between 12:00 PM and 2:30 PM, lifting the planetary boundary layer (mixing height expands from ~100m to 800-1200m). Depending on regional meteorology, this typically dilutes surface particulate concentrations by 30–50% relative to early morning radiation inversion peaks.",
       whenMostUseful: "Between 12:00 PM and 02:00 PM.",
       alternativeOption:
         "Batch combine multiple family errands into a single trip or arrange consolidated home delivery.",

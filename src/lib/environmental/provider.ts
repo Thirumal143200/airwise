@@ -70,7 +70,8 @@ export class OpenMeteoAirQualityProvider implements AirQualityProvider {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 sec timeout
 
-      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&hourly=pm10,pm2_5,nitrogen_dioxide&timezone=auto`;
+      // Query with timezone=UTC for unambiguous ISO timestamp handling
+      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&hourly=pm10,pm2_5,nitrogen_dioxide&timezone=UTC`;
 
       const response = await fetch(url, {
         signal: controller.signal,
@@ -87,12 +88,17 @@ export class OpenMeteoAirQualityProvider implements AirQualityProvider {
       const current = json.current || {};
       const hourly = json.hourly || {};
 
-      const pm25Val = Number(current.pm2_5 ?? 45);
-      const pm10Val = Number(current.pm10 ?? 75);
-      const no2Val = Number(current.nitrogen_dioxide ?? 35);
-      const so2Val = Number(current.sulphur_dioxide ?? 12);
-      const coVal = Number(current.carbon_monoxide ? (current.carbon_monoxide / 1000).toFixed(2) : 1.0); // convert ug to mg
-      const o3Val = Number(current.ozone ?? 40);
+      // Data integrity verification: do not present invented numbers as live data
+      if (current.pm2_5 === undefined || current.pm2_5 === null) {
+        throw new Error("Live atmospheric feed did not contain verified particulate measurements.");
+      }
+
+      const pm25Val = Number(current.pm2_5);
+      const pm10Val = Number(current.pm10 ?? pm25Val * 1.6);
+      const no2Val = current.nitrogen_dioxide != null ? Number(current.nitrogen_dioxide) : undefined;
+      const so2Val = current.sulphur_dioxide != null ? Number(current.sulphur_dioxide) : undefined;
+      const coVal = current.carbon_monoxide != null ? Number((current.carbon_monoxide / 1000).toFixed(2)) : undefined; // ug to mg
+      const o3Val = current.ozone != null ? Number(current.ozone) : undefined;
 
       const calculated = calculateOverallAQI(
         { pm25: pm25Val, pm10: pm10Val, no2: no2Val, so2: so2Val, co: coVal, o3: o3Val },
@@ -155,38 +161,41 @@ export class OpenMeteoAirQualityProvider implements AirQualityProvider {
         no2: {
           name: "Nitrogen Dioxide",
           chemicalFormula: "NO₂",
-          value: no2Val,
+          value: no2Val ?? 0,
           unit: "µg/m³",
           whoGuideline24h: 25,
           subIndex: calculated.subIndices["NO2"],
-          status: no2Val > 80 ? "unhealthy" : "safe",
+          status: (no2Val ?? 0) > 80 ? "unhealthy" : "safe",
           healthImplications: "Combustion byproduct from vehicles causing airway inflammation and increased asthma susceptibility.",
         },
         so2: {
           name: "Sulfur Dioxide",
           chemicalFormula: "SO₂",
-          value: so2Val,
+          value: so2Val ?? 0,
           unit: "µg/m³",
           whoGuideline24h: 40,
-          status: so2Val > 80 ? "unhealthy" : "safe",
+          subIndex: calculated.subIndices["SO2"],
+          status: (so2Val ?? 0) > 80 ? "unhealthy" : "safe",
           healthImplications: "Industrial gas contributing to acid aerosols and severe bronchoconstriction.",
         },
         co: {
           name: "Carbon Monoxide",
           chemicalFormula: "CO",
-          value: coVal,
+          value: coVal ?? 0,
           unit: "mg/m³",
           whoGuideline24h: 4.0,
-          status: coVal > 4.0 ? "unhealthy" : "safe",
+          subIndex: calculated.subIndices["CO"],
+          status: (coVal ?? 0) > 4.0 ? "unhealthy" : "safe",
           healthImplications: "Colorless toxic gas reducing oxygen delivery to body organs and heart.",
         },
         o3: {
           name: "Ground-Level Ozone",
           chemicalFormula: "O₃",
-          value: o3Val,
+          value: o3Val ?? 0,
           unit: "µg/m³",
           whoGuideline24h: 100,
-          status: o3Val > 100 ? "unhealthy" : "safe",
+          subIndex: calculated.subIndices["O3"],
+          status: (o3Val ?? 0) > 100 ? "unhealthy" : "safe",
           healthImplications: "Secondary photochemical oxidant triggering chest tightness, coughing, and reduced lung capacity.",
         },
       };
@@ -207,13 +216,14 @@ export class OpenMeteoAirQualityProvider implements AirQualityProvider {
         dominantPollutant: calculated.dominantPollutant,
         pollutants,
         hourlyForecast,
-        timestamp: current.time ? `${current.time}Z` : new Date().toISOString(),
-        source: "Open-Meteo European & Global Atmospheric Reanalysis (CAMS & Ground Ingest)",
+        timestamp: current.time ? (current.time.endsWith("Z") ? current.time : `${current.time}Z`) : new Date().toISOString(),
+        source: "Open-Meteo Atmospheric Chemistry Model (Copernicus CAMS & NOAA GFS Atmospheric Reanalysis)",
         dataSourceType: "atmospheric_model",
         dataFreshness: "live",
         limitations: [
-          "Data combines satellite observations and atmospheric transport models at 11 km resolution.",
-          "Localized hyper-local hot spots (e.g. traffic intersections or open biomass fires) may exceed regional grid averages.",
+          "Data combines satellite observations and atmospheric chemical transport models at ~11 km resolution.",
+          "Modeled reanalysis provides regional atmospheric baselines; localized street-level microclimates (traffic junctions, open fires) may exceed regional grid averages.",
+          "Not a certified ground-level statutory regulatory compliance station.",
         ],
       };
 

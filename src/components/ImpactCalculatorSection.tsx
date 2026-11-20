@@ -52,7 +52,7 @@ export function ImpactCalculatorSection() {
           </h2>
         </div>
         <p className="text-xs sm:text-sm text-gray-600 mt-1 max-w-3xl">
-          Evaluate the genuine environmental dividend of your lifestyle shifts. Unlike typical "black-box" carbon counters, AirWise discloses every mathematical formula, emission coefficient, and uncertainty factor.
+          Evaluate the genuine environmental dividend of your lifestyle shifts. Unlike typical &ldquo;black-box&rdquo; carbon counters, AirWise discloses every mathematical formula, emission coefficient, and uncertainty factor.
         </p>
       </div>
 

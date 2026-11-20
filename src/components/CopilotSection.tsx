@@ -101,7 +101,7 @@ export function CopilotSection({ aqiData, profile }: CopilotSectionProps) {
                 disabled={isLoading}
                 className="text-xs bg-gray-50 hover:bg-forest-50 hover:text-forest-900 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition-all text-left"
               >
-                "{p}"
+                &ldquo;{p}&rdquo;
               </button>
             ))}
           </div>

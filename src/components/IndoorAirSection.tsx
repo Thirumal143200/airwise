@@ -75,7 +75,7 @@ export function IndoorAirSection() {
       <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-rose-700 flex-shrink-0 mt-0.5" />
         <div className="text-xs sm:text-sm text-rose-950">
-          <strong className="font-bold text-rose-900">Critical Air Purifier Warning:</strong> Never use or purchase air cleaners advertised as "ozone generators", "ionizers", or "electronic plasma oxidizers". The California Air Resources Board (CARB) warns that intentional ozone emission creates secondary respiratory toxins that trigger severe asthma attacks. Always choose purely mechanical True HEPA filters.
+          <strong className="font-bold text-rose-900">Critical Air Purifier Warning:</strong> Never use or purchase air cleaners advertised as &ldquo;ozone generators&rdquo;, &ldquo;ionizers&rdquo;, or &ldquo;electronic plasma oxidizers&rdquo;. The California Air Resources Board (CARB) warns that intentional ozone emission creates secondary respiratory toxins that trigger severe asthma attacks. Always choose purely mechanical True HEPA filters.
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export function IndoorAirSection() {
 
               {/* One line summary */}
               <p className="mt-3 text-xs sm:text-sm text-gray-700 font-medium italic">
-                "{item.oneLineSummary}"
+                &ldquo;{item.oneLineSummary}&rdquo;
               </p>
 
               {/* Action Steps */}
@@ -130,7 +130,7 @@ export function IndoorAirSection() {
                 <div className="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200">
                   <h5 className="text-[11px] font-bold text-emerald-900 flex items-center gap-1 mb-1">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                    Essential Do's
+                    Essential Do&apos;s
                   </h5>
                   <ul className="text-[11px] text-emerald-950 space-y-1">
                     {item.dos.map((d, i) => (
@@ -142,7 +142,7 @@ export function IndoorAirSection() {
                 <div className="bg-rose-50/60 rounded-xl p-3 border border-rose-200">
                   <h5 className="text-[11px] font-bold text-rose-900 flex items-center gap-1 mb-1">
                     <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                    Critical Don'ts
+                    Critical Don&apos;ts
                   </h5>
                   <ul className="text-[11px] text-rose-950 space-y-1">
                     {item.donts.map((d, i) => (

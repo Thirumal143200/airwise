@@ -14,12 +14,12 @@ const EMISSION_FACTORS: Record<
   private_car_petrol: {
     kgCo2ePerKm: 0.192, // ~192 g CO2e/km (average petrol car, 1 occupant)
     fuelLitersPerKm: 0.08, // ~12.5 km/liter
-    sourceNote: "DEFRA 2024 / ARAI Urban Fleet Average (Petrol Mid-size, single occupant)",
+    sourceNote: "DEFRA 2024 Conversion Factors (Average petrol passenger car, including Well-to-Tank life-cycle; ARAI urban congestion reference: ~192 g CO2e/p-km)",
   },
   private_car_diesel: {
     kgCo2ePerKm: 0.171, // ~171 g CO2e/km (diesel car, 1 occupant)
     fuelLitersPerKm: 0.065, // ~15.4 km/liter
-    sourceNote: "DEFRA 2024 / ARAI Urban Fleet Average (Diesel Mid-size, single occupant)",
+    sourceNote: "DEFRA 2024 Conversion Factors (Diesel mid-size car, single occupant; ARAI urban baseline)",
   },
   two_wheeler: {
     kgCo2ePerKm: 0.068, // ~68 g CO2e/km (motorcycle / scooter)

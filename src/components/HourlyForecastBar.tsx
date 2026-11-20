@@ -90,7 +90,7 @@ export function HourlyForecastBar({ forecast }: HourlyForecastBarProps) {
       <div className="mt-4 bg-forest-50/80 rounded-xl p-3 border border-forest-200 flex items-start gap-2 text-xs text-forest-900">
         <AlertCircle className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
         <p>
-          <strong>Scientific Guidance:</strong> Winter air pollution is typically highest between <strong>06:00 AM – 09:30 AM</strong> due to radiative nocturnal surface cooling (inversion layer). Vertical thermal mixing expands after 11:30 AM, creating the day's safest window for essential errands or brief home ventilation.
+          <strong>Scientific Guidance:</strong> Winter air pollution is typically highest between <strong>06:00 AM – 09:30 AM</strong> due to radiative nocturnal surface cooling (inversion layer). Vertical thermal mixing expands after 11:30 AM, creating the day&apos;s safest window for essential errands or brief home ventilation.
         </p>
       </div>
     </section>

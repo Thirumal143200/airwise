@@ -32,7 +32,7 @@ export function SustainableAlternativesSection() {
         <div className="mt-4 p-4 rounded-xl bg-forest-50/90 border border-forest-200 flex items-start gap-3">
           <Leaf className="w-5 h-5 text-forest-800 flex-shrink-0 mt-0.5" />
           <div className="text-xs sm:text-sm text-forest-950">
-            <strong>The Exposure-Emission Principle:</strong> "Never encourage an individual to cycle or jog in severe winter smog simply to be zero-emission. Inhaling 40 L/min of toxic particulate air causes severe acute alveolar injury. Sustainable choices must prioritize personal pulmonary safety."
+            <strong>The Exposure-Emission Principle:</strong> &ldquo;Never encourage an individual to cycle or jog in severe winter smog simply to be zero-emission. Inhaling 40 L/min of toxic particulate air causes severe acute alveolar injury. Sustainable choices must prioritize personal pulmonary safety.&rdquo;
           </div>
         </div>
       </div>

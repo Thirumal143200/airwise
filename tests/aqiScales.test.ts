@@ -3,7 +3,11 @@ import {
   computeCpcbSubIndexPm25,
   computeCpcbSubIndexPm10,
   computeCpcbSubIndexNo2,
+  computeCpcbSubIndexSo2,
+  computeCpcbSubIndexCo,
+  computeCpcbSubIndexO3,
   computeEpaSubIndexPm25,
+  computeEpaSubIndexPm10,
   calculateOverallAQI,
   getTierFromAQI,
 } from "@/lib/environmental/aqiScales";
@@ -34,6 +38,31 @@ describe("AQI Calculation Scales & Breakpoints", () => {
     expect(severeVal).toBeLessThanOrEqual(500);
   });
 
+  it("should handle continuous float concentrations without falling into breakpoint gaps", () => {
+    // 30.5 ug/m3 falls between 30 and 60 -> should return ~51-52, NOT 0
+    const val30_5 = computeCpcbSubIndexPm25(30.5);
+    expect(val30_5).toBeGreaterThan(50);
+    expect(val30_5).toBeLessThanOrEqual(55);
+
+    // 60.5 ug/m3 falls between 60 and 90 -> should return ~102-105, NOT 0
+    const val60_5 = computeCpcbSubIndexPm25(60.5);
+    expect(val60_5).toBeGreaterThan(100);
+    expect(val60_5).toBeLessThanOrEqual(105);
+  });
+
+  it("should compute sub-indices for SO2, CO, and O3", () => {
+    // SO2: 40 ug/m3 -> 50
+    expect(computeCpcbSubIndexSo2(40)).toBe(50);
+
+    // CO: 1.0 mg/m3 -> 50, 2.0 mg/m3 -> 100
+    expect(computeCpcbSubIndexCo(1.0)).toBe(50);
+    expect(computeCpcbSubIndexCo(2.0)).toBe(100);
+
+    // O3: 50 ug/m3 -> 50, 100 ug/m3 -> 100
+    expect(computeCpcbSubIndexO3(50)).toBe(50);
+    expect(computeCpcbSubIndexO3(100)).toBe(100);
+  });
+
   it("should calculate US EPA PM2.5 AQI breakpoints", () => {
     // 12.0 ug/m3 -> 50
     expect(computeEpaSubIndexPm25(12.0)).toBe(50);
@@ -43,18 +72,28 @@ describe("AQI Calculation Scales & Breakpoints", () => {
 
     // 55.4 ug/m3 -> 150
     expect(computeEpaSubIndexPm25(55.4)).toBe(150);
+
+    // EPA PM10: 54 -> 50, 154 -> 100
+    expect(computeEpaSubIndexPm10(54)).toBe(50);
+    expect(computeEpaSubIndexPm10(154)).toBe(100);
   });
 
-  it("should determine overall AQI and dominant pollutant according to CPCB max-index rule", () => {
+  it("should determine overall AQI and dominant pollutant according to CPCB max-index rule across all pollutants", () => {
     const readings = {
       pm25: 110, // Poor (~260-280)
       pm10: 80,  // Satisfactory (~80)
       no2: 30,   // Good (~35)
+      so2: 15,   // Good (~19)
+      co: 1.5,   // Satisfactory (~76)
+      o3: 40,    // Good (~40)
     };
 
     const result = calculateOverallAQI(readings, "IN_CPCB");
     expect(result.dominantPollutant).toBe("PM2.5");
     expect(result.aqi).toBeGreaterThan(200);
+    expect(result.subIndices["SO2"]).toBeDefined();
+    expect(result.subIndices["CO"]).toBeDefined();
+    expect(result.subIndices["O3"]).toBeDefined();
   });
 
   it("should assign correct tier labels and health implications", () => {

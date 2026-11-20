@@ -44,7 +44,7 @@ export const INDOOR_INTERVENTIONS: IndoorIntervention[] = [
       "Never burn charcoal, wood embers (angithi), or unvented gas heaters indoors for warmth.",
     ],
     scientificRationale:
-      "A single burning mosquito coil releases particulate matter equivalent to burning approximately 75 to 137 cigarettes, while incense sticks emit formaldehyde, benzene, and heavy ultra-fine particle concentrations ($PM_{2.5} > 800\\,\\mu g/m^3$) in enclosed rooms. In winter, this causes immediate bronchial hyper-reactivity.",
+      "Peer-reviewed aerosol research (e.g., Liu et al., Environmental Health Perspectives) indicates that burning a single mosquito coil produces fine particulate ($PM_{2.5}$) mass comparable to 75–137 cigarettes, while unvented religious incense sticks release significant aldehydes, benzene, and heavy ultra-fine particle spikes ($PM_{2.5} > 800\\,\\mu g/m^3$). In closed winter rooms, this causes acute bronchial irritation.",
     dos: [
       "Use physical insect screens on doors and windows.",
       "Wear layered thermal clothing and blankets rather than open-flame heating.",
