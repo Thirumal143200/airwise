@@ -178,7 +178,7 @@ export function CopilotSection({ aqiData, profile }: CopilotSectionProps) {
               >
                 {responsePlan.isDeterministicFallback
                   ? "AirWise Deterministic Rules Engine (Offline Fallback)"
-                  : "AI Grounded (Google Gemini 1.5/2.5 Flash)"}
+                  : "AI Grounded (Google Gemini 3.8 Flash)"}
               </span>
 
               <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">

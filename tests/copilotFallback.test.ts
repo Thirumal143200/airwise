@@ -69,6 +69,7 @@ describe("GenAI Copilot Deterministic Fallback Engine", () => {
 
 describe("askGeminiCopilot Complete Lifecycle & Fallback Robustness", () => {
   const originalEnv = process.env.GEMINI_API_KEY;
+  const originalModel = process.env.GEMINI_MODEL;
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -76,6 +77,11 @@ describe("askGeminiCopilot Complete Lifecycle & Fallback Robustness", () => {
 
   afterEach(() => {
     process.env.GEMINI_API_KEY = originalEnv;
+    if (originalModel !== undefined) {
+      process.env.GEMINI_MODEL = originalModel;
+    } else {
+      delete process.env.GEMINI_MODEL;
+    }
     vi.restoreAllMocks();
   });
 
@@ -85,6 +91,75 @@ describe("askGeminiCopilot Complete Lifecycle & Fallback Robustness", () => {
 
     expect(plan.isDeterministicFallback).toBe(true);
     expect(plan.recommendation.toLowerCase()).toContain("pediatric");
+  });
+
+  it("should target gemini-3.8-flash endpoint by default", async () => {
+    process.env.GEMINI_API_KEY = "test-secret-key-12345";
+    delete process.env.GEMINI_MODEL;
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    recommendation: "Stay indoors with True HEPA air purifier on high speed.",
+                    reason: "Fine particulate PM2.5 levels of 240 ug/m3 exceed safe thresholds.",
+                    practicalAction: "Seal window edges with damp towels.",
+                    confidence: "high",
+                    sourceReferences: ["WHO AQG 2021"],
+                  }),
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    } as any);
+
+    await askGeminiCopilot("How do I stay safe during severe smog?", mockAqi, mockProfile);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const calledUrl = fetchSpy.mock.calls[0][0] as string;
+    expect(calledUrl).toContain("/models/gemini-3.8-flash:generateContent");
+  });
+
+  it("should respect GEMINI_MODEL environment variable if specified", async () => {
+    process.env.GEMINI_API_KEY = "test-secret-key-12345";
+    process.env.GEMINI_MODEL = "gemini-2.5-flash";
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    recommendation: "Wear mask.",
+                    reason: "Dust.",
+                    practicalAction: "N95.",
+                    confidence: "high",
+                    sourceReferences: ["CPCB"],
+                  }),
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    } as any);
+
+    await askGeminiCopilot("Commute advice", mockAqi, mockProfile);
+
+    const calledUrl = fetchSpy.mock.calls[0][0] as string;
+    expect(calledUrl).toContain("/models/gemini-2.5-flash:generateContent");
   });
 
   it("should successfully parse and return Gemini structured JSON when API responds with 200", async () => {
@@ -123,6 +198,36 @@ describe("askGeminiCopilot Complete Lifecycle & Fallback Robustness", () => {
     expect(plan.recommendation).toContain("Stay indoors with True HEPA");
     expect(plan.confidence).toBe("high");
     expect(plan.sourceReferences).toContain("WHO AQG 2021");
+  });
+
+  it("should engage deterministic fallback and safely redact error details when Gemini returns HTTP 404", async () => {
+    process.env.GEMINI_API_KEY = "test-secret-key-12345";
+
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => ({
+        error: {
+          code: 404,
+          message: "models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent?key=test-secret-key-12345",
+          status: "NOT_FOUND",
+        },
+      }),
+    } as any);
+
+    const plan = await askGeminiCopilot("Is it safe for kids to play outside?", mockAqi, mockProfile);
+
+    expect(plan.isDeterministicFallback).toBe(true);
+    expect(plan.recommendation.toLowerCase()).toContain("pediatric");
+
+    expect(consoleWarnSpy).toHaveBeenCalled();
+    const warnCall = consoleWarnSpy.mock.calls.find(c => String(c[0]).includes("404 NOT_FOUND"));
+    expect(warnCall).toBeDefined();
+    expect(warnCall?.[0]).toContain("[Copilot Diagnostics] Gemini returned 404 NOT_FOUND");
+    expect(warnCall?.[0]).toContain("[REDACTED]");
+    expect(warnCall?.[0]).not.toContain("test-secret-key-12345");
   });
 
   it("should successfully extract JSON when Gemini wraps response in markdown code blocks", async () => {

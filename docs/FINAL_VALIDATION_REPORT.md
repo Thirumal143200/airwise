@@ -64,10 +64,10 @@ Every user-facing feature has been inspected in source code, verified against th
 ## 4. Gemini Integration & Fallback Verification
 
 - **Dual-Engine Architecture:**
-  - When `GEMINI_API_KEY` is present in the environment: Calls `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent` using a strict system instruction with temperature 0.2 and structured JSON schema output (`responseMimeType: "application/json"`). Bounded with an `AbortController` timeout (8,000 ms).
+  - When `GEMINI_API_KEY` is present in the environment: Calls `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent` using a strict system instruction with temperature 0.2 and structured JSON schema output (`responseMimeType: "application/json"`). Bounded with an `AbortController` timeout (8,000 ms).
   - When `GEMINI_API_KEY` is absent (as in default sandboxed test environments): Automatically delegates to `generateDeterministicCopilotPlan()`, an offline rules-based clinical engine.
 - **Honesty in Model Output:** The Copilot response UI card explicitly renders an engine provenance tag:
-  - `"AI Grounded (Google Gemini 1.5/2.5 Flash)"` when live API key generates the response.
+  - `"AI Grounded (Google Gemini 3.8 Flash)"` when live API key generates the response.
   - `"AirWise Deterministic Rules Engine (Offline Fallback)"` when the rules engine is engaged.
   Mock responses are **never** deceptively presented as live Gemini output.
 - **Prompt Injection Defense:** Inputs undergo delimiter escaping (`<<<`, `>>>`, `[SYSTEM]`, `IGNORE PREVIOUS INSTRUCTIONS`) and length truncation (max 800 characters) via `sanitizeInput()` prior to payload assembly.

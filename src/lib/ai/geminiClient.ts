@@ -220,7 +220,7 @@ Provide your response in strict JSON format:`;
   }, timeoutMs);
 
   try {
-    const model = "gemini-1.5-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const res = await fetch(endpoint, {
@@ -246,7 +246,24 @@ Provide your response in strict JSON format:`;
     console.log(`[Copilot Diagnostics] Gemini HTTP response status=${res.status}`);
 
     if (!res.ok) {
-      console.warn(`[Copilot Diagnostics] Gemini returned non-OK status (${res.status}); falling back to deterministic rules engine.`);
+      let safeErrorDetail = "";
+      try {
+        const errorJson = await res.json();
+        const rawMsg = errorJson?.error?.message || JSON.stringify(errorJson);
+        safeErrorDetail = rawMsg.replace(/key=[^&\s]+/gi, "key=[REDACTED]").split(apiKey).join("[REDACTED]");
+      } catch {
+        safeErrorDetail = `HTTP ${res.status} ${res.statusText}`;
+      }
+
+      if (res.status === 404) {
+        console.warn(
+          `[Copilot Diagnostics] Gemini returned 404 NOT_FOUND for model '${model}'. Detail: ${safeErrorDetail}; activating deterministic rules engine.`
+        );
+      } else {
+        console.warn(
+          `[Copilot Diagnostics] Gemini returned non-OK status (${res.status}). Detail: ${safeErrorDetail}; activating deterministic rules engine.`
+        );
+      }
       return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
     }
 

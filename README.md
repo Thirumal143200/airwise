@@ -1,9 +1,9 @@
 # AirWise — Urban Air Quality Intelligence & Family Safety Assistant
 > **"Understand your air. Protect your routine. Make cleaner choices."**
 
-[![Production Build](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![Production Build](https://img.shields.io/badge/Next.js-15.5-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-5.6_Strict-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Vitest Passing](https://img.shields.io/badge/Tests-24%2F24_Passed-emerald?style=flat&logo=vitest)](https://vitest.dev/)
+[![Vitest Passing](https://img.shields.io/badge/Tests-33%2F33_Passed-emerald?style=flat&logo=vitest)](https://vitest.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-forest?style=flat)](LICENSE)
 [![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-tealbrand?style=flat)](https://www.w3.org/WAI/WCAG21/quickref/)
 
@@ -62,7 +62,7 @@ flowchart TD
     subgraph DataFeeds["External Environmental Feeds & LLMs"]
         OpenMeteo["Open-Meteo Atmospheric Model (Copernicus CAMS & NOAA GFS)"]
         Geocoding["Open-Meteo Geocoding API"]
-        Gemini["Google Gemini 1.5 Flash (Structured JSON)"]
+        Gemini["Google Gemini 3.8 Flash (Structured JSON)"]
     end
 
     User --> Client

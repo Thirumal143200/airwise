@@ -53,7 +53,7 @@ AirWise consumes only publicly documented, open-data APIs with clear licensing a
    - **License**: CC BY 4.0 / ODbL.
    - **Operational Footprint**: Location search with character sanitization and 4-second timeout bounding.
 
-3. **Google Gemini API (`gemini-1.5-flash` / `gemini-2.5-flash`)**
+3. **Google Gemini API (`gemini-3.8-flash`)**
    - **Provider**: Google Cloud / Google AI Studio
    - **Authentication**: Isolated exclusively to server-side API routes via `process.env.GEMINI_API_KEY`.
    - **Responsible AI Boundary**: The LLM is provided strictly with verified environmental telemetry in its context prompt and bounded with structured JSON output schemas and deterministic rules fallback.
