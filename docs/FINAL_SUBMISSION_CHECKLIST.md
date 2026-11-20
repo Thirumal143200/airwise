@@ -10,7 +10,7 @@
 
 | Requirement | Status | Verification & Evidence |
 |---|---|---|
-| **Public GitHub Repository** | **COMPLETED** | Published at `https://github.com/Thirumal143200/airwise` (Commit: `e0a24f8`). |
+| **Public GitHub Repository** | **COMPLETED** | Published at `https://github.com/Thirumal143200/airwise` (Branch: `main`). |
 | **Repository Size < 10 MB** | **VERIFIED** | Build artifacts strictly ignored; total Git object store: 245.98 KiB. |
 | **Working Live Deployment URL** | READY FOR DEPLOY | Next.js 14 App Router production build validated. Compatible with Vercel, Netlify, or AWS Amplify. |
 | **Demo Video Link** | SCRIPT COMPLETED | Comprehensive 3.5-minute demo video script prepared in `docs/DEMO_VIDEO_SCRIPT.md`. |
