@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CopilotRequestSchema } from "@/types";
-import { askGeminiCopilot } from "@/lib/ai/geminiClient";
+import { askGeminiCopilot, generateDeterministicCopilotPlan } from "@/lib/ai/geminiClient";
 import { checkRateLimit, createSafeErrorResponse, sanitizeInput } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   const { allowed, remaining } = checkRateLimit(ip);
 
   if (!allowed) {
+    console.warn(`[Copilot API] Rate limit reached for client IP prefix=${ip.slice(0, 7)}...`);
     return createSafeErrorResponse(
       "You have reached the temporary rate limit. Please pause for 60 seconds before asking another question.",
       429,
@@ -15,24 +16,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let body: any = null;
   try {
-    const body = await req.json();
+    body = await req.json();
+  } catch (parseErr) {
+    console.warn("[Copilot API] Failed to parse JSON request body.");
+    return createSafeErrorResponse("Malformed JSON request body.", 400, "BAD_REQUEST");
+  }
+
+  try {
     const parsed = CopilotRequestSchema.safeParse(body);
 
     if (!parsed.success) {
+      console.warn("[Copilot API] Request failed schema validation:", parsed.error.issues);
       return createSafeErrorResponse("Invalid message payload.", 400, "VALIDATION_ERROR");
     }
 
     const { message, currentAqiData, userProfile } = parsed.data;
     const cleanMessage = sanitizeInput(message, 1000);
 
+    console.log(`[Copilot API] Processing copilot query: messageLength=${cleanMessage.length}`);
     const plan = await askGeminiCopilot(cleanMessage, currentAqiData, userProfile);
 
     const response = NextResponse.json({ plan });
     response.headers.set("X-RateLimit-Remaining", remaining.toString());
     return response;
-  } catch (err) {
-    console.error("Copilot API handler error:", err);
-    return createSafeErrorResponse("Failed to generate response.", 500, "COPILOT_ERROR");
+  } catch (err: any) {
+    console.error("[Copilot API] Unexpected handler error; generating deterministic safety fallback:", err?.message || err);
+    const fallbackPlan = generateDeterministicCopilotPlan(
+      typeof body?.message === "string" ? sanitizeInput(body.message, 1000) : "general health advice",
+      body?.currentAqiData,
+      body?.userProfile
+    );
+    const response = NextResponse.json({ plan: fallbackPlan });
+    response.headers.set("X-RateLimit-Remaining", remaining.toString());
+    return response;
   }
 }

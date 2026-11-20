@@ -144,7 +144,7 @@ export function generateDeterministicCopilotPlan(
 
 /**
  * Calls live Google Gemini API if GEMINI_API_KEY is available in environment.
- * Bounded with AbortController, structured schema prompt, and fallback.
+ * Bounded with AbortController, structured schema prompt, safe diagnostic logging, and fallback.
  */
 export async function askGeminiCopilot(
   userQuery: string,
@@ -154,11 +154,12 @@ export async function askGeminiCopilot(
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey || apiKey.trim() === "" || apiKey === "your-gemini-api-key") {
-    // Graceful deterministic rules engine
+    console.log("[Copilot Diagnostics] GEMINI_API_KEY is unconfigured; activating deterministic rules engine.");
     return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
   }
 
   const cleanQuery = sanitizeInput(userQuery, 800);
+  console.log(`[Copilot Diagnostics] Initiating Gemini request: queryLength=${cleanQuery.length}, hasAqiData=${!!aqiData}, hasProfile=${!!profile}`);
 
   // Structured System Prompt bounding the LLM
   const systemInstruction = `You are the AirWise Environmental Intelligence Assistant.
@@ -212,11 +213,13 @@ ${cleanQuery}
 
 Provide your response in strict JSON format:`;
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  const controller = new AbortController();
+  const timeoutMs = 8000;
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
 
-    // We call the Gemini REST API (gemini-2.5-flash or gemini-1.5-flash)
+  try {
     const model = "gemini-1.5-flash";
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
@@ -233,42 +236,56 @@ Provide your response in strict JSON format:`;
           },
         ],
         generationConfig: {
-          temperature: 0.2, // deterministic, factual
+          temperature: 0.2,
           maxOutputTokens: 800,
           responseMimeType: "application/json",
         },
       }),
     });
 
-    clearTimeout(timeoutId);
+    console.log(`[Copilot Diagnostics] Gemini HTTP response status=${res.status}`);
 
     if (!res.ok) {
-      console.warn(`Gemini API returned status ${res.status}, falling back to rules engine`);
+      console.warn(`[Copilot Diagnostics] Gemini returned non-OK status (${res.status}); falling back to deterministic rules engine.`);
       return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
     }
 
     const data = await res.json();
     const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!textOutput) {
+    if (!textOutput || typeof textOutput !== "string") {
+      console.warn("[Copilot Diagnostics] Gemini response content empty or missing parts; activating fallback.");
       return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
     }
 
-    // Parse structured JSON
-    const parsed = JSON.parse(textOutput);
+    // Sanitize possible markdown formatting wrapper (e.g. ```json ... ```)
+    let cleanJson = textOutput.trim();
+    if (cleanJson.startsWith("```")) {
+      cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+    }
+
+    const parsed = JSON.parse(cleanJson);
+    console.log("[Copilot Diagnostics] Successfully parsed structured Gemini response.");
+
     return {
       recommendation: parsed.recommendation || "Follow safety protocols for high AQI.",
       reason: parsed.reason || "Air pollutant levels require exposure protection.",
       practicalAction: parsed.practicalAction || "Limit outdoor exposure and run air filtration.",
       estimatedImpact: parsed.estimatedImpact,
       confidence: parsed.confidence === "low" || parsed.confidence === "medium" ? parsed.confidence : "high",
-      sourceReferences: Array.isArray(parsed.sourceReferences)
+      sourceReferences: Array.isArray(parsed.sourceReferences) && parsed.sourceReferences.length > 0
         ? parsed.sourceReferences
         : ["CPCB Air Quality Guidelines", "WHO Global Ambient Air Standards"],
       isDeterministicFallback: false,
     };
-  } catch (err) {
-    console.warn("Gemini API call timed out or failed; engaging deterministic rules engine:", err);
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      console.warn(`[Copilot Diagnostics] Gemini API request timed out after ${timeoutMs}ms; engaging deterministic rules engine.`);
+    } else {
+      console.warn("[Copilot Diagnostics] Gemini API call encountered error; engaging deterministic rules engine:", err?.message || err);
+    }
     return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

@@ -38,10 +38,17 @@ export function CopilotSection({ aqiData, profile }: CopilotSectionProps) {
     setIsLoading(true);
     setErrorMessage(null);
 
+    const controller = new AbortController();
+    const timeoutMs = 12000; // 12-second frontend network timeout
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeoutMs);
+
     try {
       const res = await fetch("/api/copilot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           message: text,
           currentAqiData: aqiData,
@@ -49,16 +56,26 @@ export function CopilotSection({ aqiData, profile }: CopilotSectionProps) {
         }),
       });
 
+      clearTimeout(timeoutId);
+
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error?.message || "Failed to contact copilot service.");
+        throw new Error(errJson.error?.message || `Server returned status ${res.status}`);
       }
 
       const data = await res.json();
+      if (!data || !data.plan) {
+        throw new Error("Invalid response format received from Copilot service.");
+      }
       setResponsePlan(data.plan);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to generate copilot guidance. Please try again.");
+      if (err.name === "AbortError") {
+        setErrorMessage("Request timed out after 12 seconds. The copilot service took longer than expected. Please try again.");
+      } else {
+        setErrorMessage(err.message || "Failed to generate copilot guidance. Please try again.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
