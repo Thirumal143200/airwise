@@ -14,7 +14,7 @@ AirWise was subjected to rigorous static analysis, type checking, edge-case test
 | Category | Status | Target Metric | Achieved Metric | Verification Evidence |
 |---|---|---|---|---|
 | **TypeScript Strictness** | PASS | 100% Strict, 0 `any` | 100% Strict | Strict compiler options enabled in `tsconfig.json`. |
-| **Test Suite Coverage** | PASS | 15+ Tests Across 5 Domains | 18 Comprehensive Unit & Integration Tests | Vitest suite testing AQI equations, routine generation, impact calculation, security/rate limiting, and copilot fallback. |
+| **Test Suite Coverage** | PASS | 15+ Tests Across 5 Domains | 24 Comprehensive Unit & Integration Tests across 6 Suites | Vitest suite testing AQI equations, routine generation, impact calculation, security/rate limiting, provider fallback, and copilot fallback. |
 | **Environmental Provider Resilience** | PASS | Zero-Downtime Fallback | 100% Availability | Multi-tier fallback: Live Open-Meteo REST API -> In-Memory 20-min TTL Cache -> Calibrated Regional Reference Baseline. |
 | **AI Copilot Resilience** | PASS | Zero 500 Errors on Quota/Offline | 100% Graceful Degradation | Dual-engine architecture with deterministic expert rules engine fallback; explicit transparency badge distinguishing AI from Rules Engine. |
 | **Security & Privacy** | PASS | Zero Secret Leakage & GPS Fuzzing | 100% Compliant | Server-side credentials only; lat/lng fuzzed to 3 decimal places (~100m-1km); prompt injection delimiters neutralized; rate limiting enforced. |

@@ -3,7 +3,7 @@
 
 [![Production Build](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-5.6_Strict-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Vitest Passing](https://img.shields.io/badge/Tests-19%2F19_Passed-emerald?style=flat&logo=vitest)](https://vitest.dev/)
+[![Vitest Passing](https://img.shields.io/badge/Tests-24%2F24_Passed-emerald?style=flat&logo=vitest)](https://vitest.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-forest?style=flat)](LICENSE)
 [![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-tealbrand?style=flat)](https://www.w3.org/WAI/WCAG21/quickref/)
 
@@ -60,9 +60,9 @@ flowchart TD
     end
 
     subgraph DataFeeds["External Environmental Feeds & LLMs"]
-        OpenMeteo["Open-Meteo Air Quality & CAMS Reanalysis"]
+        OpenMeteo["Open-Meteo Atmospheric Model (Copernicus CAMS & NOAA GFS)"]
         Geocoding["Open-Meteo Geocoding API"]
-        Gemini["Google Gemini 1.5/2.5 Flash"]
+        Gemini["Google Gemini 1.5 Flash (Structured JSON)"]
     end
 
     User --> Client
@@ -77,7 +77,7 @@ flowchart TD
 ## 3. Core Capabilities
 
 ### A. Live Air Quality Intelligence & Multi-Channel Risk Encoding
-- **Real-Time Data**: Live atmospheric integration via Open-Meteo European and global atmospheric reanalysis (CAMS model + ground station feeds) at 11 km grid resolution.
+- **Real-Time Data**: Live atmospheric integration via Open-Meteo European and global atmospheric reanalysis (Copernicus CAMS & NOAA GFS numerical transport models) at ~11 km grid resolution.
 - **Dual Scale Support**: Seamless switching between **Indian CPCB National Air Quality Index (NAAQI)** and **US EPA AQI**.
 - **6 Critical Pollutants**: $PM_{2.5}$, $PM_{10}$, $NO_2$, $SO_2$, $CO$, and ground-level $O_3$ with WHO 2021 24-hour health guideline benchmarks.
 - **Accessibility Guarantee**: Never relies on color alone. Multi-modal risk encoding uses numeric AQI + textual severity labels + risk icons + high-contrast badge styling.
@@ -122,7 +122,7 @@ Every recommendation satisfies the 6 challenge criteria: *What to do, Why it is 
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/airwise.git
+git clone https://github.com/Thirumal143200/airwise.git
 cd airwise
 
 # Install dependencies
@@ -140,8 +140,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Running Automated Tests
 ```bash
-# Execute the full Vitest suite (19 tests across 5 domains)
+# Execute the full Vitest suite (24 tests across 6 domains)
 npm test
+
+# Run TypeScript typecheck
+npm run typecheck
+
+# Run Next.js and ESLint code quality checks
+npm run lint
 ```
 
 ### Production Build
@@ -161,7 +167,7 @@ npm run start
 - **Location Privacy & Fuzzing**: User coordinates are fuzzed to 3 decimal places (~100m to 1km resolution) to avoid recording exact domestic coordinates.
 - **Input Sanitization & Injection Defense**: Control tags and delimiter patterns (`<<<`, `>>>`, `[SYSTEM]`, `IGNORE PREVIOUS INSTRUCTIONS`) are stripped.
 - **Sliding-Window Rate Limiting**: In-memory rate limiting restricts API requests to 30 requests per minute per client with automated cache cleanup.
-- **Lightweight Repository**: Configured `.gitignore` guarantees that build artifacts (`.next`, `node_modules`, `coverage`) are excluded, keeping repository size well below the 10 MB competition limit.
+- **Lightweight Repository**: Configured `.gitignore` guarantees that build artifacts (`.next`, `node_modules`, `coverage`) are excluded, keeping repository size well below the 10 MB competition limit (actual Git object size: ~246 KiB).
 
 ---
 
@@ -169,12 +175,13 @@ npm run start
 
 | Test Suite | Tests | Description | Result |
 |---|---|---|---|
-| `tests/aqiScales.test.ts` | 4 | CPCB piecewise interpolation, EPA NAAQS, dominant pollutant logic, and tier tags. | **PASSED** (13ms) |
-| `tests/routineEngine.test.ts` | 4 | 4 time slots, severe AQI morning workout cancellation, midday window, and 6-field contract. | **PASSED** (19ms) |
-| `tests/impactCalculator.test.ts` | 4 | Avoided distance, fuel savings, CO2e math, EPA tree offsets, and disclaimers. | **PASSED** (13ms) |
-| `tests/securityAndSanitization.test.ts` | 4 | Prompt injection defense, coordinate fuzzing, and sliding-window rate limiting. | **PASSED** (17ms) |
-| `tests/copilotFallback.test.ts` | 3 | Pediatric safety priority, exercise cancellation, and offline fallback schema. | **PASSED** (14ms) |
-| **Total** | **19** | **Complete coverage across all Challenge 6 priorities** | **100% PASSED** |
+| `tests/aqiScales.test.ts` | 6 | Continuous CPCB interpolation, EPA NAAQS, multi-pollutant sub-indices (SO2, CO, O3), and tier tags. | **PASSED** (22ms) |
+| `tests/routineEngine.test.ts` | 4 | 4 time slots, severe AQI morning workout cancellation, midday window, and 6-field contract. | **PASSED** (24ms) |
+| `tests/impactCalculator.test.ts` | 4 | Avoided distance, fuel savings, CO2e math, EPA tree offsets, and disclaimers. | **PASSED** (17ms) |
+| `tests/securityAndSanitization.test.ts` | 4 | Prompt injection defense, coordinate fuzzing, and sliding-window rate limiting. | **PASSED** (51ms) |
+| `tests/copilotFallback.test.ts` | 3 | Pediatric safety priority, exercise cancellation, and offline fallback schema. | **PASSED** (35ms) |
+| `tests/provider.test.ts` | 3 | Offline reference fallback, atmospheric model tagging, and geocoding search. | **PASSED** (215ms) |
+| **Total** | **24** | **Complete coverage across all Challenge 6 priorities** | **100% PASSED** |
 
 ---
 
@@ -183,6 +190,9 @@ npm run start
 - **Challenge Analysis**: [`docs/CHALLENGE_ANALYSIS.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/CHALLENGE_ANALYSIS.md)
 - **Quality & Security Audit**: [`docs/QUALITY_AUDIT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/QUALITY_AUDIT.md)
 - **Originality & Attribution**: [`docs/ORIGINALITY_AND_ATTRIBUTION.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/ORIGINALITY_AND_ATTRIBUTION.md)
+- **Technical Validation Report**: [`docs/FINAL_VALIDATION_REPORT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/FINAL_VALIDATION_REPORT.md)
+- **Submission Checklist**: [`docs/FINAL_SUBMISSION_CHECKLIST.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/FINAL_SUBMISSION_CHECKLIST.md)
+- **Demo Video Script**: [`docs/DEMO_VIDEO_SCRIPT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/DEMO_VIDEO_SCRIPT.md)
 
 ---
 
