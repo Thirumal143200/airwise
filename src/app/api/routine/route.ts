@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { UserProfileSchema } from "@/types";
+import { AirQualityData, RoutineRequestSchema } from "@/types";
 import { generateDailyRoutine } from "@/lib/routine/routineEngine";
 import { checkRateLimit, createSafeErrorResponse } from "@/lib/security";
 
@@ -13,20 +13,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { aqiData, profile } = body;
+    const parsed = RoutineRequestSchema.safeParse(body);
 
-    if (!aqiData || typeof aqiData.aqi !== "number") {
-      return createSafeErrorResponse("Valid aqiData object is required.", 400, "INVALID_AQI_DATA");
+    if (!parsed.success) {
+      return createSafeErrorResponse("Invalid routine request payload.", 400, "VALIDATION_ERROR");
     }
 
-    const profileParsed = UserProfileSchema.safeParse(profile);
-    if (!profileParsed.success) {
-      return createSafeErrorResponse("Invalid user profile configuration.", 400, "INVALID_PROFILE");
-    }
-
-    const slots = generateDailyRoutine(aqiData, profileParsed.data);
+    const { aqiData, profile } = parsed.data;
+    const slots = generateDailyRoutine(aqiData as unknown as AirQualityData, profile);
     return NextResponse.json({ routine: slots });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Routine generation API error:", err);
     return createSafeErrorResponse("Internal error generating routine.", 500, "ROUTINE_ERROR");
   }

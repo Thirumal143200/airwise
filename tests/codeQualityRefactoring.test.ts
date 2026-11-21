@@ -15,6 +15,8 @@ import {
   CopilotAqiContextSchema,
   CopilotRequestSchema,
   PollutantReadingSchema,
+  RoutineRequestSchema,
+  LocationSearchQuerySchema,
 } from "@/types";
 
 describe("Code Quality Refactoring & Modular Helper Verification", () => {
@@ -245,6 +247,42 @@ describe("Code Quality Refactoring & Modular Helper Verification", () => {
         message: "General air cleaning advice",
       };
       expect(CopilotRequestSchema.safeParse(noAqiReq).success).toBe(true);
+    });
+
+    it("should validate LocationSearchQuerySchema strictly", () => {
+      expect(LocationSearchQuerySchema.safeParse({ q: "Delhi" }).success).toBe(true);
+      expect(LocationSearchQuerySchema.safeParse({ q: "a" }).success).toBe(false); // min 2
+      expect(LocationSearchQuerySchema.safeParse({ q: "" }).success).toBe(false);
+      expect(LocationSearchQuerySchema.safeParse({}).success).toBe(false);
+    });
+
+    it("should validate RoutineRequestSchema with valid and invalid payloads", () => {
+      const validRoutineReq = {
+        aqiData: {
+          location: { name: "Hyderabad" },
+          aqi: 140,
+        },
+        profile: {
+          householdType: "working_adults",
+          commuteMode: "public_metro_bus",
+          dailyCommuteKm: 15,
+          exerciseHabit: "indoor_gym",
+          budgetTier: "low_cost",
+          hasAirPurifier: true,
+          hasExhaustFan: true,
+          hasVulnerableMember: false,
+        },
+      };
+      expect(RoutineRequestSchema.safeParse(validRoutineReq).success).toBe(true);
+
+      const invalidRoutineReq = {
+        aqiData: {
+          location: { name: "Hyderabad" },
+          aqi: -10, // negative AQI
+        },
+        profile: validRoutineReq.profile,
+      };
+      expect(RoutineRequestSchema.safeParse(invalidRoutineReq).success).toBe(false);
     });
   });
 });

@@ -36,28 +36,52 @@ export function Navbar({
   const [searchResults, setSearchResults] = useState<GeocodingResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const searchAbortRef = React.useRef<AbortController | null>(null);
+  const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort();
+    }
+
     if (query.trim().length < 2) {
       setSearchResults([]);
       setShowDropdown(false);
+      setIsSearching(false);
       return;
     }
 
     setIsSearching(true);
-    try {
-      const res = await fetch(`/api/locations?q=${encodeURIComponent(query)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSearchResults(data.results || []);
-        setShowDropdown(true);
+    debounceTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      searchAbortRef.current = controller;
+
+      try {
+        const res = await fetch(`/api/locations?q=${encodeURIComponent(query.trim())}`, {
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.results || []);
+          setShowDropdown(true);
+        }
+      } catch (err: unknown) {
+        if (
+          !(err instanceof DOMException && err.name === "AbortError") &&
+          !(err instanceof Error && err.name === "AbortError")
+        ) {
+          console.error("Search failed", err);
+        }
+      } finally {
+        setIsSearching(false);
       }
-    } catch (err) {
-      console.error("Search failed", err);
-    } finally {
-      setIsSearching(false);
-    }
+    }, 250);
   };
 
   const selectCity = (city: string, lat: number, lng: number) => {

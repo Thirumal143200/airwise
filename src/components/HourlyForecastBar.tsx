@@ -8,6 +8,15 @@ interface HourlyForecastBarProps {
   forecast: HourlyForecastPoint[];
 }
 
+const ACTION_BADGE_CONFIG: Record<
+  HourlyForecastPoint["recommendedOutdoorAction"],
+  { badgeClass: string; label: string }
+> = {
+  safe: { badgeClass: "bg-emerald-100 text-emerald-800", label: "Safe" },
+  limit_heavy: { badgeClass: "bg-amber-100 text-amber-800", label: "Limit" },
+  avoid_all: { badgeClass: "bg-rose-100 text-rose-800", label: "Avoid" },
+};
+
 export function HourlyForecastBar({ forecast }: HourlyForecastBarProps) {
   if (!forecast || forecast.length === 0) return null;
 
@@ -64,21 +73,18 @@ export function HourlyForecastBar({ forecast }: HourlyForecastBarProps) {
 
                 {/* Recommendation Tag */}
                 <div className="mt-2">
-                  <span
-                    className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
-                      point.recommendedOutdoorAction === "safe"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : point.recommendedOutdoorAction === "limit_heavy"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-rose-100 text-rose-800"
-                    }`}
-                  >
-                    {point.recommendedOutdoorAction === "safe"
-                      ? "Safe"
-                      : point.recommendedOutdoorAction === "limit_heavy"
-                      ? "Limit"
-                      : "Avoid"}
-                  </span>
+                  {(() => {
+                    const actionConfig =
+                      ACTION_BADGE_CONFIG[point.recommendedOutdoorAction] ||
+                      ACTION_BADGE_CONFIG.limit_heavy;
+                    return (
+                      <span
+                        className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${actionConfig.badgeClass}`}
+                      >
+                        {actionConfig.label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             );

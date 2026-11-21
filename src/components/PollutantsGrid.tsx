@@ -15,6 +15,28 @@ interface PollutantsGridProps {
   };
 }
 
+const STATUS_BADGE_CONFIG: Record<
+  PollutantReading["status"],
+  { badgeClass: string; isAlert: boolean }
+> = {
+  hazardous: {
+    badgeClass: "bg-rose-100 text-rose-800 border border-rose-300",
+    isAlert: true,
+  },
+  unhealthy: {
+    badgeClass: "bg-amber-100 text-amber-800 border border-amber-300",
+    isAlert: true,
+  },
+  moderate: {
+    badgeClass: "bg-amber-100 text-amber-800 border border-amber-300",
+    isAlert: false,
+  },
+  safe: {
+    badgeClass: "bg-emerald-100 text-emerald-800 border border-emerald-300",
+    isAlert: false,
+  },
+};
+
 export function PollutantsGrid({ pollutants }: PollutantsGridProps) {
   const items = [
     pollutants.pm25,
@@ -60,22 +82,22 @@ export function PollutantsGrid({ pollutants }: PollutantsGridProps) {
                   </div>
 
                   {/* Status Badge */}
-                  <span
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                      item.status === "hazardous"
-                        ? "bg-rose-100 text-rose-800 border border-rose-300"
-                        : item.status === "unhealthy"
-                        ? "bg-amber-100 text-amber-800 border border-amber-300"
-                        : "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                    }`}
-                  >
-                    {item.status === "hazardous" || item.status === "unhealthy" ? (
-                      <AlertTriangle className="w-3 h-3" />
-                    ) : (
-                      <CheckCircle className="w-3 h-3" />
-                    )}
-                    <span className="capitalize">{item.status}</span>
-                  </span>
+                  {(() => {
+                    const statusConfig =
+                      STATUS_BADGE_CONFIG[item.status] || STATUS_BADGE_CONFIG.moderate;
+                    return (
+                      <span
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${statusConfig.badgeClass}`}
+                      >
+                        {statusConfig.isAlert ? (
+                          <AlertTriangle className="w-3 h-3" />
+                        ) : (
+                          <CheckCircle className="w-3 h-3" />
+                        )}
+                        <span className="capitalize">{item.status}</span>
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 {/* Main Concentration Value */}

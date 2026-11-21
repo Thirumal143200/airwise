@@ -9,9 +9,17 @@ import {
   Lightbulb,
   Shield,
 } from "lucide-react";
-import { AirQualityData, RoutineSlot, UserProfile } from "@/types";
+import {
+  AirQualityData,
+  BudgetTier,
+  CommuteMode,
+  ExerciseHabit,
+  HouseholdType,
+  RoutineSlot,
+  UserProfile,
+} from "@/types";
 
-const RISK_BADGE_STYLES: Record<string, string> = {
+const RISK_BADGE_STYLES: Record<RoutineSlot["riskLevel"], string> = {
   low: "bg-emerald-100 text-emerald-800 border-emerald-300",
   moderate: "bg-amber-100 text-amber-800 border-amber-300",
   high: "bg-orange-100 text-orange-800 border-orange-300",
@@ -176,7 +184,7 @@ export function RoutineSection({
                 <select
                   value={tempProfile.householdType}
                   onChange={(e) =>
-                    setTempProfile({ ...tempProfile, householdType: e.target.value as any })
+                    setTempProfile({ ...tempProfile, householdType: e.target.value as HouseholdType })
                   }
                   className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50"
                 >
@@ -194,7 +202,7 @@ export function RoutineSection({
                 <select
                   value={tempProfile.commuteMode}
                   onChange={(e) =>
-                    setTempProfile({ ...tempProfile, commuteMode: e.target.value as any })
+                    setTempProfile({ ...tempProfile, commuteMode: e.target.value as CommuteMode })
                   }
                   className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50"
                 >
@@ -231,7 +239,7 @@ export function RoutineSection({
                 <select
                   value={tempProfile.exerciseHabit}
                   onChange={(e) =>
-                    setTempProfile({ ...tempProfile, exerciseHabit: e.target.value as any })
+                    setTempProfile({ ...tempProfile, exerciseHabit: e.target.value as ExerciseHabit })
                   }
                   className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50"
                 >
@@ -249,7 +257,7 @@ export function RoutineSection({
                 <select
                   value={tempProfile.budgetTier}
                   onChange={(e) =>
-                    setTempProfile({ ...tempProfile, budgetTier: e.target.value as any })
+                    setTempProfile({ ...tempProfile, budgetTier: e.target.value as BudgetTier })
                   }
                   className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50"
                 >

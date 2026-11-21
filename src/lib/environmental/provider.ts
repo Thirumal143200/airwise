@@ -28,7 +28,7 @@ const MAX_CACHE_ENTRIES = 100; // Upper limit preventing memory bloat
  * 2. FIFO Fallback: If cache is still at capacity after purging expired keys, evicts the oldest-inserted key
  *    (first key in Map insertion order). Note: this operates on insertion-order FIFO, not access-order LRU.
  */
-function setBoundedCache(key: string, data: AirQualityData, expiresAt: number): void {
+export function setBoundedCache(key: string, data: AirQualityData, expiresAt: number): void {
   if (cache.size >= MAX_CACHE_ENTRIES) {
     const now = Date.now();
     for (const [k, v] of cache.entries()) {
@@ -42,6 +42,14 @@ function setBoundedCache(key: string, data: AirQualityData, expiresAt: number): 
     }
   }
   cache.set(key, { data, expiresAt });
+}
+
+export function getCacheSizeForTesting(): number {
+  return cache.size;
+}
+
+export function clearCacheForTesting(): void {
+  cache.clear();
 }
 
 export type { GeocodingResult };

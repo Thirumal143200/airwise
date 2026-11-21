@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { LocationSearchQuerySchema } from "@/types";
 import { searchLocations } from "@/lib/environmental/provider";
 import { checkRateLimit, createSafeErrorResponse, sanitizeInput } from "@/lib/security";
 
@@ -14,14 +15,15 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get("q") || "";
   const cleanQ = sanitizeInput(q, 100);
 
-  if (!cleanQ || cleanQ.length < 2) {
+  const parsed = LocationSearchQuerySchema.safeParse({ q: cleanQ });
+  if (!parsed.success) {
     return NextResponse.json({ results: [] });
   }
 
   try {
-    const results = await searchLocations(cleanQ);
+    const results = await searchLocations(parsed.data.q);
     return NextResponse.json({ results });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Location search API error:", err);
     return createSafeErrorResponse("Failed to search locations", 500, "SEARCH_ERROR");
   }

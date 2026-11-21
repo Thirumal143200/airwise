@@ -13,7 +13,7 @@ import {
   Activity,
   type LucideIcon,
 } from "lucide-react";
-import { AirQualityData } from "@/types";
+import { AirQualityData, AirQualityTier } from "@/types";
 
 interface TierStyleConfig {
   bgClass: string;
@@ -23,7 +23,7 @@ interface TierStyleConfig {
   accentBg: string;
 }
 
-const TIER_CONFIG: Record<string, TierStyleConfig> = {
+const TIER_CONFIG: Record<AirQualityTier, TierStyleConfig> = {
   good: {
     bgClass: "bg-emerald-50",
     borderClass: "border-emerald-300",

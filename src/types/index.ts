@@ -364,3 +364,12 @@ export const CopilotRequestSchema = z.object({
   currentAqiData: CopilotAqiContextSchema.optional(),
   userProfile: UserProfileSchema.optional(),
 });
+
+export const LocationSearchQuerySchema = z.object({
+  q: z.string().min(2).max(100),
+});
+
+export const RoutineRequestSchema = z.object({
+  aqiData: CopilotAqiContextSchema,
+  profile: UserProfileSchema,
+});
