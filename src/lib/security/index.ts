@@ -30,7 +30,7 @@ export function checkRateLimit(clientId: string): { allowed: boolean; remaining:
 
 // Clean up stale rate limit entries periodically (every 10 minutes)
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     const now = Date.now();
     rateLimitStore.forEach((value, key) => {
       const active = value.timestamps.filter((t) => now - t < WINDOW_SIZE_MS);
@@ -41,6 +41,7 @@ if (typeof setInterval !== "undefined") {
       }
     });
   }, 10 * 60 * 1000);
+  cleanupTimer.unref?.();
 }
 
 // ==========================================

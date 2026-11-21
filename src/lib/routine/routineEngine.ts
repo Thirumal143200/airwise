@@ -1,5 +1,13 @@
 import { AirQualityData, RoutineSlot, UserProfile } from "@/types";
 
+/**
+ * Generates an inversion-aware 4-slot daily routine customized to ambient AQI severity
+ * and personal household vulnerability, commute habits, and exercise preferences.
+ *
+ * @param aqiData - Current verified air quality metrics, dominant pollutant, and tier.
+ * @param profile - User household makeup, budget tier, and transit habits.
+ * @returns Array of exactly 4 structured RoutineSlot objects covering morning, midday, evening, and night.
+ */
 export function generateDailyRoutine(
   aqiData: AirQualityData,
   profile: UserProfile
@@ -7,10 +15,6 @@ export function generateDailyRoutine(
   const { aqi, tier } = aqiData;
   const isSevere = aqi > 300 || tier === "severe" || tier === "hazardous";
   const isPoorOrWorse = aqi > 150 || tier === "poor" || tier === "very_poor" || isSevere;
-  const hasKidsOrElderly =
-    profile.householdType === "family_with_kids" ||
-    profile.householdType === "elderly_care" ||
-    profile.hasVulnerableMember;
 
   const slots: RoutineSlot[] = [];
 

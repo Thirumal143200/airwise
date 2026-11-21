@@ -3,10 +3,8 @@
 import React from "react";
 import {
   Shuffle,
-  ShieldAlert,
   ArrowRight,
   TrendingDown,
-  Sparkles,
   CheckCircle2,
   AlertTriangle,
   Leaf,

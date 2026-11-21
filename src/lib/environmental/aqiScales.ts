@@ -149,55 +149,52 @@ export function computeEpaSubIndexPm10(pm10: number): number {
   return calculateSubIndex(pm10, EPA_PM10_BREAKPOINTS);
 }
 
+export interface PollutantConcentrations {
+  pm25?: number;
+  pm10?: number;
+  no2?: number;
+  so2?: number;
+  co?: number;
+  o3?: number;
+}
+
 /**
  * Derives overall AQI and dominant pollutant based on official standard logic.
  * CPCB rule: AQI = max(sub-indices), dominant pollutant = pollutant with max sub-index.
  */
 export function calculateOverallAQI(
-  pollutants: { pm25?: number; pm10?: number; no2?: number; so2?: number; co?: number; o3?: number },
+  pollutants: PollutantConcentrations,
   scale: AirQualityScale = "IN_CPCB"
 ): { aqi: number; dominantPollutant: string; subIndices: Record<string, number> } {
   const subIndices: Record<string, number> = {};
 
-  if (scale === "IN_CPCB") {
-    if (pollutants.pm25 !== undefined && pollutants.pm25 !== null) {
-      subIndices["PM2.5"] = computeCpcbSubIndexPm25(pollutants.pm25);
-    }
-    if (pollutants.pm10 !== undefined && pollutants.pm10 !== null) {
-      subIndices["PM10"] = computeCpcbSubIndexPm10(pollutants.pm10);
-    }
-    if (pollutants.no2 !== undefined && pollutants.no2 !== null) {
-      subIndices["NO2"] = computeCpcbSubIndexNo2(pollutants.no2);
-    }
-    if (pollutants.so2 !== undefined && pollutants.so2 !== null) {
-      subIndices["SO2"] = computeCpcbSubIndexSo2(pollutants.so2);
-    }
-    if (pollutants.co !== undefined && pollutants.co !== null) {
-      subIndices["CO"] = computeCpcbSubIndexCo(pollutants.co);
-    }
-    if (pollutants.o3 !== undefined && pollutants.o3 !== null) {
-      subIndices["O3"] = computeCpcbSubIndexO3(pollutants.o3);
-    }
-  } else {
-    // US EPA
-    if (pollutants.pm25 !== undefined && pollutants.pm25 !== null) {
-      subIndices["PM2.5"] = computeEpaSubIndexPm25(pollutants.pm25);
-    }
-    if (pollutants.pm10 !== undefined && pollutants.pm10 !== null) {
-      subIndices["PM10"] = computeEpaSubIndexPm10(pollutants.pm10);
-    }
-    if (pollutants.no2 !== undefined && pollutants.no2 !== null) {
-      subIndices["NO2"] = computeCpcbSubIndexNo2(pollutants.no2);
-    }
-    if (pollutants.so2 !== undefined && pollutants.so2 !== null) {
-      subIndices["SO2"] = computeCpcbSubIndexSo2(pollutants.so2);
-    }
-    if (pollutants.co !== undefined && pollutants.co !== null) {
-      subIndices["CO"] = computeCpcbSubIndexCo(pollutants.co);
-    }
-    if (pollutants.o3 !== undefined && pollutants.o3 !== null) {
-      subIndices["O3"] = computeCpcbSubIndexO3(pollutants.o3);
-    }
+  // Particulate sub-indices depend on the chosen standard
+  if (pollutants.pm25 !== undefined && pollutants.pm25 !== null) {
+    subIndices["PM2.5"] =
+      scale === "IN_CPCB"
+        ? computeCpcbSubIndexPm25(pollutants.pm25)
+        : computeEpaSubIndexPm25(pollutants.pm25);
+  }
+
+  if (pollutants.pm10 !== undefined && pollutants.pm10 !== null) {
+    subIndices["PM10"] =
+      scale === "IN_CPCB"
+        ? computeCpcbSubIndexPm10(pollutants.pm10)
+        : computeEpaSubIndexPm10(pollutants.pm10);
+  }
+
+  // Gaseous pollutant sub-indices adhere to standard CPCB breakpoints
+  if (pollutants.no2 !== undefined && pollutants.no2 !== null) {
+    subIndices["NO2"] = computeCpcbSubIndexNo2(pollutants.no2);
+  }
+  if (pollutants.so2 !== undefined && pollutants.so2 !== null) {
+    subIndices["SO2"] = computeCpcbSubIndexSo2(pollutants.so2);
+  }
+  if (pollutants.co !== undefined && pollutants.co !== null) {
+    subIndices["CO"] = computeCpcbSubIndexCo(pollutants.co);
+  }
+  if (pollutants.o3 !== undefined && pollutants.o3 !== null) {
+    subIndices["O3"] = computeCpcbSubIndexO3(pollutants.o3);
   }
 
   let maxVal = 0;

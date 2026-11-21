@@ -5,26 +5,17 @@ import {
   ShieldCheck,
   CheckCircle,
   XCircle,
-  DollarSign,
   AlertTriangle,
-  BookOpen,
   Filter,
-  Flame,
-  Wind,
-  Sparkles,
+  BookOpen,
 } from "lucide-react";
-import { IndoorIntervention } from "@/types";
 import { INDOOR_INTERVENTIONS } from "@/lib/indoor/indoorEngine";
 
 export function IndoorAirSection() {
   const [selectedCostFilter, setSelectedCostFilter] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const filteredInterventions = INDOOR_INTERVENTIONS.filter((item) => {
     if (selectedCostFilter !== "all" && item.costTier !== selectedCostFilter) {
-      return false;
-    }
-    if (selectedCategory !== "all" && item.category !== selectedCategory) {
       return false;
     }
     return true;

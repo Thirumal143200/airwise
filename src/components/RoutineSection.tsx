@@ -8,13 +8,15 @@ import {
   AlertTriangle,
   Lightbulb,
   Shield,
-  ArrowRight,
-  UserCheck,
-  Bike,
-  Home,
-  Flame,
 } from "lucide-react";
 import { AirQualityData, RoutineSlot, UserProfile } from "@/types";
+
+const RISK_BADGE_STYLES: Record<string, string> = {
+  low: "bg-emerald-100 text-emerald-800 border-emerald-300",
+  moderate: "bg-amber-100 text-amber-800 border-amber-300",
+  high: "bg-orange-100 text-orange-800 border-orange-300",
+  severe: "bg-rose-100 text-rose-800 border-rose-300",
+};
 
 interface RoutineSectionProps {
   routine: RoutineSlot[];
@@ -35,13 +37,6 @@ export function RoutineSection({
   const handleSaveProfile = () => {
     onUpdateProfile(tempProfile);
     setIsModalOpen(false);
-  };
-
-  const riskBadgeStyles: Record<string, string> = {
-    low: "bg-emerald-100 text-emerald-800 border-emerald-300",
-    moderate: "bg-amber-100 text-amber-800 border-amber-300",
-    high: "bg-orange-100 text-orange-800 border-orange-300",
-    severe: "bg-rose-100 text-rose-800 border-rose-300",
   };
 
   return (
@@ -93,7 +88,7 @@ export function RoutineSection({
 
                 <span
                   className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                    riskBadgeStyles[slot.riskLevel] || riskBadgeStyles.moderate
+                    RISK_BADGE_STYLES[slot.riskLevel] || RISK_BADGE_STYLES.moderate
                   }`}
                 >
                   {slot.riskLevel} Risk

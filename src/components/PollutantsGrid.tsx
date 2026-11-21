@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { PollutantReading } from "@/types";
 
 interface PollutantsGridProps {

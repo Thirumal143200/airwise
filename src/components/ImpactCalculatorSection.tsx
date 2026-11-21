@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Calculator,
   Leaf,
@@ -9,37 +9,28 @@ import {
   TreePine,
   HelpCircle,
   AlertTriangle,
-  Info,
 } from "lucide-react";
-import { CommuteMode, ImpactCalculationResult } from "@/types";
+import { CommuteMode } from "@/types";
 import { calculateEnvironmentalImpact } from "@/lib/calculator/impactCalculator";
+
+type AlternativeCommuteMode = "metro_train" | "electric_bus" | "carpool_4" | "work_from_home";
 
 export function ImpactCalculatorSection() {
   const [distanceKm, setDistanceKm] = useState<number>(14);
   const [commuteMode, setCommuteMode] = useState<CommuteMode>("private_car_petrol");
-  const [alternativeMode, setAlternativeMode] = useState<
-    "metro_train" | "electric_bus" | "carpool_4" | "work_from_home"
-  >("metro_train");
+  const [alternativeMode, setAlternativeMode] = useState<AlternativeCommuteMode>("metro_train");
   const [daysPerWeek, setDaysPerWeek] = useState<number>(5);
 
-  const [impact, setImpact] = useState<ImpactCalculationResult>(() =>
-    calculateEnvironmentalImpact({
-      distanceKm: 14,
-      commuteMode: "private_car_petrol",
-      alternativeMode: "metro_train",
-      daysPerWeek: 5,
-    })
+  const impact = useMemo(
+    () =>
+      calculateEnvironmentalImpact({
+        distanceKm,
+        commuteMode,
+        alternativeMode,
+        daysPerWeek,
+      }),
+    [distanceKm, commuteMode, alternativeMode, daysPerWeek]
   );
-
-  useEffect(() => {
-    const res = calculateEnvironmentalImpact({
-      distanceKm,
-      commuteMode,
-      alternativeMode,
-      daysPerWeek,
-    });
-    setImpact(res);
-  }, [distanceKm, commuteMode, alternativeMode, daysPerWeek]);
 
   return (
     <div className="space-y-6">
@@ -91,7 +82,7 @@ export function ImpactCalculatorSection() {
             </label>
             <select
               value={commuteMode}
-              onChange={(e) => setCommuteMode(e.target.value as any)}
+              onChange={(e) => setCommuteMode(e.target.value as CommuteMode)}
               className="w-full p-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-forest-600 focus:outline-none"
             >
               <option value="private_car_petrol">Private Petrol Car (192 g CO₂e/p-km)</option>
@@ -107,7 +98,7 @@ export function ImpactCalculatorSection() {
             </label>
             <select
               value={alternativeMode}
-              onChange={(e) => setAlternativeMode(e.target.value as any)}
+              onChange={(e) => setAlternativeMode(e.target.value as AlternativeCommuteMode)}
               className="w-full p-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-forest-600 focus:outline-none"
             >
               <option value="metro_train">Electric Urban Metro Rail (28 g CO₂e/p-km)</option>

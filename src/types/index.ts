@@ -34,6 +34,24 @@ export interface HourlyForecastPoint {
   recommendedOutdoorAction: "safe" | "limit_heavy" | "avoid_all";
 }
 
+export interface GeocodingResult {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  admin1?: string;
+}
+
+export interface OpenMeteoGeocodingItem {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  admin1?: string;
+}
+
 export interface AirQualityData {
   location: {
     name: string;
@@ -253,8 +271,34 @@ export const UserProfileSchema = z.object({
   hasVulnerableMember: z.boolean(),
 });
 
+export const ImpactCalculationInputSchema = z.object({
+  commuteMode: z.enum([
+    "private_car_petrol",
+    "private_car_diesel",
+    "two_wheeler",
+    "public_metro_bus",
+    "walking_cycling",
+    "work_from_home",
+  ]),
+  distanceKm: z.number().min(0.5).max(300),
+  alternativeMode: z.enum(["metro_train", "electric_bus", "carpool_4", "work_from_home"]),
+  daysPerWeek: z.number().min(1).max(7),
+  avoidTrashBurning: z.boolean().optional(),
+  reduceIdlingMinutes: z.number().optional(),
+});
+
+export const CopilotPlanResponseSchema = z.object({
+  recommendation: z.string().min(1),
+  reason: z.string().min(1),
+  practicalAction: z.string().min(1),
+  estimatedImpact: z.string().optional(),
+  confidence: z.enum(["high", "medium", "low"]).default("high"),
+  sourceReferences: z.array(z.string()).default([]),
+  isDeterministicFallback: z.boolean().optional(),
+});
+
 export const CopilotRequestSchema = z.object({
   message: z.string().min(1).max(1000),
-  currentAqiData: z.any().optional(), // validated inside handler
+  currentAqiData: z.record(z.string(), z.unknown()).optional(),
   userProfile: UserProfileSchema.optional(),
 });

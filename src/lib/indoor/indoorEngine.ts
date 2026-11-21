@@ -170,9 +170,10 @@ export const INDOOR_INTERVENTIONS: IndoorIntervention[] = [
   },
 ];
 
+/**
+ * Retrieves indoor interventions, optionally filtered by the specified budget tier.
+ */
 export function getIndoorRecommendations(budgetTier?: BudgetTier): IndoorIntervention[] {
-  if (!budgetTier || budgetTier === "zero_cost") {
-    return INDOOR_INTERVENTIONS;
-  }
-  return INDOOR_INTERVENTIONS;
+  if (!budgetTier) return INDOOR_INTERVENTIONS;
+  return INDOOR_INTERVENTIONS.filter((item) => item.costTier === budgetTier);
 }

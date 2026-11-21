@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: any = null;
+  let body: unknown = null;
   try {
     body = await req.json();
-  } catch (parseErr) {
+  } catch {
     console.warn("[Copilot API] Failed to parse JSON request body.");
     return createSafeErrorResponse("Malformed JSON request body.", 400, "BAD_REQUEST");
   }
@@ -36,17 +36,23 @@ export async function POST(req: NextRequest) {
     const cleanMessage = sanitizeInput(message, 1000);
 
     console.log(`[Copilot API] Processing copilot query: messageLength=${cleanMessage.length}`);
-    const plan = await askGeminiCopilot(cleanMessage, currentAqiData, userProfile);
+    const plan = await askGeminiCopilot(
+      cleanMessage,
+      currentAqiData as any,
+      userProfile
+    );
 
     const response = NextResponse.json({ plan });
     response.headers.set("X-RateLimit-Remaining", remaining.toString());
     return response;
-  } catch (err: any) {
-    console.error("[Copilot API] Unexpected handler error; generating deterministic safety fallback:", err?.message || err);
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("[Copilot API] Unexpected handler error; generating deterministic safety fallback:", errMsg);
+    const parsedBody = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
     const fallbackPlan = generateDeterministicCopilotPlan(
-      typeof body?.message === "string" ? sanitizeInput(body.message, 1000) : "general health advice",
-      body?.currentAqiData,
-      body?.userProfile
+      typeof parsedBody.message === "string" ? sanitizeInput(parsedBody.message, 1000) : "general health advice",
+      parsedBody.currentAqiData as any,
+      parsedBody.userProfile as any
     );
     const response = NextResponse.json({ plan: fallbackPlan });
     response.headers.set("X-RateLimit-Remaining", remaining.toString());

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { AqiHeroCard } from "@/components/AqiHeroCard";
 import { PollutantsGrid } from "@/components/PollutantsGrid";
@@ -20,12 +20,8 @@ import {
 import { generateDailyRoutine } from "@/lib/routine/routineEngine";
 import {
   MapPin,
-  Sparkles,
-  Shield,
   ArrowRight,
   RefreshCw,
-  ExternalLink,
-  Heart,
   Wind,
 } from "lucide-react";
 
@@ -58,12 +54,17 @@ export default function Home() {
   const [scale, setScale] = useState<AirQualityScale>("IN_CPCB");
   const [aqiData, setAqiData] = useState<AirQualityData | null>(null);
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
-  const [routine, setRoutine] = useState<RoutineSlot[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSourcesOpen, setIsSourcesOpen] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Fetch air quality data
+  // Derive routine reactively from current AQI data and user profile
+  const routine = useMemo<RoutineSlot[]>(() => {
+    if (!aqiData) return [];
+    return generateDailyRoutine(aqiData, profile);
+  }, [aqiData, profile]);
+
+  // Fetch air quality data (decoupled from user profile updates)
   const fetchAirQuality = useCallback(
     async (cityName: string, lat: number, lng: number, chosenScale: AirQualityScale) => {
       setIsLoading(true);
@@ -77,18 +78,14 @@ export default function Home() {
         }
         const data: AirQualityData = await res.json();
         setAqiData(data);
-
-        // Generate initial routine
-        const slots = generateDailyRoutine(data, profile);
-        setRoutine(slots);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to load air quality:", err);
         setFetchError("Unable to retrieve live environmental feed. Please retry or pick another city.");
       } finally {
         setIsLoading(false);
       }
     },
-    [profile]
+    []
   );
 
   useEffect(() => {
@@ -106,10 +103,6 @@ export default function Home() {
 
   const handleUpdateProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
-    if (aqiData) {
-      const updatedRoutine = generateDailyRoutine(aqiData, newProfile);
-      setRoutine(updatedRoutine);
-    }
   };
 
   return (

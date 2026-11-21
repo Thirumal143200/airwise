@@ -104,7 +104,17 @@ export const SUSTAINABLE_ALTERNATIVES: SustainableAlternativeItem[] = [
   },
 ];
 
-export function getFilteredAlternatives(currentTier: AirQualityTier): SustainableAlternativeItem[] {
-  // If AQI is severe or hazardous, highlight active transit caveats
-  return SUSTAINABLE_ALTERNATIVES;
+/**
+ * Returns sustainable alternatives. When ambient air quality reaches severe or hazardous tiers,
+ * active transit recommendations are deprioritized in favor of protected cabin transit and source control.
+ */
+export function getFilteredAlternatives(currentTier?: AirQualityTier): SustainableAlternativeItem[] {
+  if (!currentTier || (currentTier !== "severe" && currentTier !== "hazardous")) {
+    return SUSTAINABLE_ALTERNATIVES;
+  }
+  return [...SUSTAINABLE_ALTERNATIVES].sort((a, b) => {
+    if (a.category === "short_trips") return 1;
+    if (b.category === "short_trips") return -1;
+    return 0;
+  });
 }

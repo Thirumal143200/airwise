@@ -1,7 +1,9 @@
 import {
   AirQualityData,
   AirQualityScale,
+  GeocodingResult,
   HourlyForecastPoint,
+  OpenMeteoGeocodingItem,
   PollutantReading,
 } from "@/types";
 import {
@@ -17,6 +19,25 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
+const MAX_CACHE_ENTRIES = 100; // Upper limit preventing memory bloat
+
+function setBoundedCache(key: string, data: AirQualityData, expiresAt: number): void {
+  if (cache.size >= MAX_CACHE_ENTRIES) {
+    const now = Date.now();
+    for (const [k, v] of cache.entries()) {
+      if (v.expiresAt <= now) {
+        cache.delete(k);
+      }
+    }
+    if (cache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = cache.keys().next().value;
+      if (oldestKey) cache.delete(oldestKey);
+    }
+  }
+  cache.set(key, { data, expiresAt });
+}
+
+export type { GeocodingResult };
 
 export interface AirQualityProvider {
   getAirQuality(
@@ -27,15 +48,6 @@ export interface AirQualityProvider {
     country: string,
     scale?: AirQualityScale
   ): Promise<AirQualityData>;
-}
-
-export interface GeocodingResult {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  country: string;
-  admin1?: string;
 }
 
 // Fallback reference data when network is completely unreachable
@@ -227,8 +239,8 @@ export class OpenMeteoAirQualityProvider implements AirQualityProvider {
         ],
       };
 
-      // Cache the result
-      cache.set(cacheKey, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
+      // Cache the result with bounded capacity
+      setBoundedCache(cacheKey, result, Date.now() + CACHE_TTL_MS);
       return result;
     } catch (err) {
       console.warn("Live API fetch failed, using calibrated reference fallback:", err);
@@ -358,9 +370,9 @@ export async function searchLocations(query: string): Promise<GeocodingResult[]>
     clearTimeout(timeout);
 
     if (res.ok) {
-      const data = await res.json();
+      const data = (await res.json()) as { results?: OpenMeteoGeocodingItem[] };
       if (data.results && Array.isArray(data.results)) {
-        return data.results.map((r: any) => ({
+        return data.results.map((r: OpenMeteoGeocodingItem) => ({
           id: r.id,
           name: r.name,
           latitude: r.latitude,

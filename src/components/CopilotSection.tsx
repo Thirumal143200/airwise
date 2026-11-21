@@ -4,13 +4,12 @@ import React, { useState } from "react";
 import {
   Sparkles,
   Send,
-  ShieldCheck,
   Cpu,
-  BookOpen,
   AlertCircle,
   Lightbulb,
   CheckCircle2,
-  Clock,
+  ShieldCheck,
+  BookOpen,
 } from "lucide-react";
 import { AirQualityData, CopilotPlanResponse, UserProfile } from "@/types";
 
@@ -68,11 +67,16 @@ export function CopilotSection({ aqiData, profile }: CopilotSectionProps) {
         throw new Error("Invalid response format received from Copilot service.");
       }
       setResponsePlan(data.plan);
-    } catch (err: any) {
-      if (err.name === "AbortError") {
+    } catch (err: unknown) {
+      const isAbort =
+        (err instanceof DOMException && err.name === "AbortError") ||
+        (err instanceof Error && err.name === "AbortError");
+
+      if (isAbort) {
         setErrorMessage("Request timed out after 12 seconds. The copilot service took longer than expected. Please try again.");
       } else {
-        setErrorMessage(err.message || "Failed to generate copilot guidance. Please try again.");
+        const errMsg = err instanceof Error ? err.message : String(err);
+        setErrorMessage(errMsg || "Failed to generate copilot guidance. Please try again.");
       }
     } finally {
       clearTimeout(timeoutId);

@@ -18,19 +18,28 @@ export async function GET(req: NextRequest) {
   const city = searchParams.get("city") || "Delhi";
   const latStr = searchParams.get("lat");
   const lngStr = searchParams.get("lng");
-  const scale = (searchParams.get("scale") as any) || "IN_CPCB";
+  const rawScale = searchParams.get("scale");
 
-  let lat = latStr ? parseFloat(latStr) : 28.6139;
-  let lng = lngStr ? parseFloat(lngStr) : 77.209;
+  const lat = latStr ? parseFloat(latStr) : 28.6139;
+  const lng = lngStr ? parseFloat(lngStr) : 77.209;
 
-  // Validate inputs
-  const parseResult = LocationQuerySchema.safeParse({ city, lat, lng, scale });
+  // Validate inputs with schema
+  const parseResult = LocationQuerySchema.safeParse({
+    city,
+    lat,
+    lng,
+    scale: rawScale || undefined,
+  });
+
   if (!parseResult.success) {
     return createSafeErrorResponse("Invalid query parameters", 400, "VALIDATION_ERROR");
   }
 
+  const validated = parseResult.data;
+  const scale = validated.scale;
+
   // Sanitize coordinates for privacy
-  const sanitizedCoords = sanitizeCoordinates(lat, lng);
+  const sanitizedCoords = sanitizeCoordinates(validated.lat ?? lat, validated.lng ?? lng);
 
   try {
     const data = await provider.getAirQuality(
@@ -46,7 +55,7 @@ export async function GET(req: NextRequest) {
     response.headers.set("X-RateLimit-Remaining", remaining.toString());
     response.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");
     return response;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Air Quality API handler error:", error);
     return createSafeErrorResponse("Failed to retrieve air quality data. Please try again.", 500, "PROVIDER_ERROR");
   }

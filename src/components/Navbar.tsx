@@ -11,10 +11,9 @@ import {
   Shuffle,
   Calculator,
   Info,
-  CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
-import { AirQualityData, AirQualityScale } from "@/types";
+import { AirQualityData, AirQualityScale, GeocodingResult } from "@/types";
 
 interface NavbarProps {
   currentAqiData: AirQualityData | null;
@@ -34,7 +33,7 @@ export function Navbar({
   setActiveTab,
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<GeocodingResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 

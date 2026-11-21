@@ -11,8 +11,62 @@ import {
   HeartPulse,
   Baby,
   Activity,
+  type LucideIcon,
 } from "lucide-react";
 import { AirQualityData } from "@/types";
+
+interface TierStyleConfig {
+  bgClass: string;
+  borderClass: string;
+  textClass: string;
+  icon: LucideIcon;
+  accentBg: string;
+}
+
+const TIER_CONFIG: Record<string, TierStyleConfig> = {
+  good: {
+    bgClass: "bg-emerald-50",
+    borderClass: "border-emerald-300",
+    textClass: "text-emerald-900",
+    icon: ShieldCheck,
+    accentBg: "bg-emerald-600",
+  },
+  moderate: {
+    bgClass: "bg-amber-50",
+    borderClass: "border-amber-300",
+    textClass: "text-amber-950",
+    icon: Activity,
+    accentBg: "bg-amber-500",
+  },
+  poor: {
+    bgClass: "bg-orange-50",
+    borderClass: "border-orange-300",
+    textClass: "text-orange-950",
+    icon: AlertOctagon,
+    accentBg: "bg-orange-500",
+  },
+  very_poor: {
+    bgClass: "bg-red-50",
+    borderClass: "border-red-300",
+    textClass: "text-red-950",
+    icon: ShieldAlert,
+    accentBg: "bg-red-600",
+  },
+  severe: {
+    bgClass: "bg-purple-50",
+    borderClass: "border-purple-300",
+    textClass: "text-purple-950",
+    icon: ShieldAlert,
+    accentBg: "bg-purple-700",
+  },
+  hazardous: {
+    bgClass: "bg-rose-50",
+    borderClass: "border-rose-400",
+    textClass: "text-rose-950",
+    icon: AlertOctagon,
+    accentBg: "bg-rose-800",
+  },
+};
 
 interface AqiHeroCardProps {
   data: AirQualityData;
@@ -23,62 +77,7 @@ interface AqiHeroCardProps {
 export function AqiHeroCard({ data, onRefresh, isLoading }: AqiHeroCardProps) {
   const { aqi, scale, tier, tierLabel, healthSummary, dominantPollutant, location, timestamp, source, dataFreshness } = data;
 
-  // Multi-attribute styling configuration
-  const tierConfig: Record<
-    string,
-    {
-      bgClass: string;
-      borderClass: string;
-      textClass: string;
-      icon: any;
-      accentBg: string;
-    }
-  > = {
-    good: {
-      bgClass: "bg-emerald-50",
-      borderClass: "border-emerald-300",
-      textClass: "text-emerald-900",
-      icon: ShieldCheck,
-      accentBg: "bg-emerald-600",
-    },
-    moderate: {
-      bgClass: "bg-amber-50",
-      borderClass: "border-amber-300",
-      textClass: "text-amber-950",
-      icon: Activity,
-      accentBg: "bg-amber-500",
-    },
-    poor: {
-      bgClass: "bg-orange-50",
-      borderClass: "border-orange-300",
-      textClass: "text-orange-950",
-      icon: AlertOctagon,
-      accentBg: "bg-orange-500",
-    },
-    very_poor: {
-      bgClass: "bg-red-50",
-      borderClass: "border-red-300",
-      textClass: "text-red-950",
-      icon: ShieldAlert,
-      accentBg: "bg-red-600",
-    },
-    severe: {
-      bgClass: "bg-purple-50",
-      borderClass: "border-purple-300",
-      textClass: "text-purple-950",
-      icon: ShieldAlert,
-      accentBg: "bg-purple-700",
-    },
-    hazardous: {
-      bgClass: "bg-rose-50",
-      borderClass: "border-rose-400",
-      textClass: "text-rose-950",
-      icon: AlertOctagon,
-      accentBg: "bg-rose-800",
-    },
-  };
-
-  const currentConfig = tierConfig[tier] || tierConfig.moderate;
+  const currentConfig = TIER_CONFIG[tier] || TIER_CONFIG.moderate;
   const TierIcon = currentConfig.icon;
 
   const isHighRisk = aqi > 200;

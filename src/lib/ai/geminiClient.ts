@@ -143,26 +143,11 @@ export function generateDeterministicCopilotPlan(
 }
 
 /**
- * Calls live Google Gemini API if GEMINI_API_KEY is available in environment.
- * Bounded with AbortController, structured schema prompt, safe diagnostic logging, and fallback.
+ * Constructs the bounding system instruction guiding Gemini's persona,
+ * factual constraints, and strict JSON output schema.
  */
-export async function askGeminiCopilot(
-  userQuery: string,
-  aqiData?: AirQualityData,
-  profile?: UserProfile
-): Promise<CopilotPlanResponse> {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey || apiKey.trim() === "" || apiKey === "your-gemini-api-key") {
-    console.log("[Copilot Diagnostics] GEMINI_API_KEY is unconfigured; activating deterministic rules engine.");
-    return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
-  }
-
-  const cleanQuery = sanitizeInput(userQuery, 800);
-  console.log(`[Copilot Diagnostics] Initiating Gemini request: queryLength=${cleanQuery.length}, hasAqiData=${!!aqiData}, hasProfile=${!!profile}`);
-
-  // Structured System Prompt bounding the LLM
-  const systemInstruction = `You are the AirWise Environmental Intelligence Assistant.
+export function buildCopilotSystemInstruction(): string {
+  return `You are the AirWise Environmental Intelligence Assistant.
 Your mission is to provide accurate, scientifically grounded, actionable, non-alarmist air quality and routine guidance to families.
 
 CRITICAL OPERATIONAL RULES:
@@ -179,8 +164,16 @@ CRITICAL OPERATIONAL RULES:
   "confidence": "high" | "medium" | "low",
   "sourceReferences": ["string", "string"]
 }`;
+}
 
-  const contextData = {
+/**
+ * Builds the verified environmental and user profile context object.
+ */
+export function buildCopilotContextData(
+  aqiData?: AirQualityData,
+  profile?: UserProfile
+): Record<string, unknown> {
+  return {
     location: aqiData?.location.name || "Urban Center",
     currentAqi: aqiData?.aqi ?? "Unavailable",
     aqiScale: aqiData?.scale || "IN_CPCB",
@@ -202,6 +195,68 @@ CRITICAL OPERATIONAL RULES:
       budgetTier: "low_cost",
     },
   };
+}
+
+/**
+ * Redacts API keys and secret query parameters from error strings.
+ */
+export function sanitizeCopilotErrorMessage(rawMsg: string, apiKey: string): string {
+  if (!rawMsg) return "";
+  let sanitized = rawMsg.replace(/key=[^&\s]+/gi, "key=[REDACTED]");
+  if (apiKey && apiKey.trim().length > 0) {
+    sanitized = sanitized.split(apiKey).join("[REDACTED]");
+  }
+  return sanitized;
+}
+
+/**
+ * Strips markdown code fences (```json ... ```) and parses structured Gemini JSON.
+ */
+export function extractAndParseCopilotJson(textOutput: string): CopilotPlanResponse | null {
+  if (!textOutput || typeof textOutput !== "string") return null;
+
+  let cleanJson = textOutput.trim();
+  if (cleanJson.startsWith("```")) {
+    cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  }
+
+  const parsed = JSON.parse(cleanJson);
+  if (!parsed || typeof parsed !== "object") return null;
+
+  return {
+    recommendation: parsed.recommendation || "Follow safety protocols for high AQI.",
+    reason: parsed.reason || "Air pollutant levels require exposure protection.",
+    practicalAction: parsed.practicalAction || "Limit outdoor exposure and run air filtration.",
+    estimatedImpact: parsed.estimatedImpact,
+    confidence: parsed.confidence === "low" || parsed.confidence === "medium" ? parsed.confidence : "high",
+    sourceReferences: Array.isArray(parsed.sourceReferences) && parsed.sourceReferences.length > 0
+      ? parsed.sourceReferences
+      : ["CPCB Air Quality Guidelines", "WHO Global Ambient Air Standards"],
+    isDeterministicFallback: false,
+  };
+}
+
+/**
+ * Calls live Google Gemini API if GEMINI_API_KEY is available in environment.
+ * Bounded with AbortController, structured schema prompt, safe diagnostic logging, and fallback.
+ */
+export async function askGeminiCopilot(
+  userQuery: string,
+  aqiData?: AirQualityData,
+  profile?: UserProfile
+): Promise<CopilotPlanResponse> {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey || apiKey.trim() === "" || apiKey === "your-gemini-api-key") {
+    console.log("[Copilot Diagnostics] GEMINI_API_KEY is unconfigured; activating deterministic rules engine.");
+    return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
+  }
+
+  const cleanQuery = sanitizeInput(userQuery, 800);
+  console.log(`[Copilot Diagnostics] Initiating Gemini request: queryLength=${cleanQuery.length}, hasAqiData=${!!aqiData}, hasProfile=${!!profile}`);
+
+  const systemInstruction = buildCopilotSystemInstruction();
+  const contextData = buildCopilotContextData(aqiData, profile);
 
   const promptContent = `CURRENT VERIFIED ENVIRONMENTAL CONTEXT:
 ${JSON.stringify(contextData, null, 2)}
@@ -250,7 +305,7 @@ Provide your response in strict JSON format:`;
       try {
         const errorJson = await res.json();
         const rawMsg = errorJson?.error?.message || JSON.stringify(errorJson);
-        safeErrorDetail = rawMsg.replace(/key=[^&\s]+/gi, "key=[REDACTED]").split(apiKey).join("[REDACTED]");
+        safeErrorDetail = sanitizeCopilotErrorMessage(rawMsg, apiKey);
       } catch {
         safeErrorDetail = `HTTP ${res.status} ${res.statusText}`;
       }
@@ -275,31 +330,24 @@ Provide your response in strict JSON format:`;
       return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
     }
 
-    // Sanitize possible markdown formatting wrapper (e.g. ```json ... ```)
-    let cleanJson = textOutput.trim();
-    if (cleanJson.startsWith("```")) {
-      cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+    const plan = extractAndParseCopilotJson(textOutput);
+    if (!plan) {
+      console.warn("[Copilot Diagnostics] Failed to parse structured plan from Gemini response; activating fallback.");
+      return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
     }
 
-    const parsed = JSON.parse(cleanJson);
     console.log("[Copilot Diagnostics] Successfully parsed structured Gemini response.");
+    return plan;
+  } catch (err: unknown) {
+    const isAbort =
+      (err instanceof DOMException && err.name === "AbortError") ||
+      (err instanceof Error && err.name === "AbortError");
 
-    return {
-      recommendation: parsed.recommendation || "Follow safety protocols for high AQI.",
-      reason: parsed.reason || "Air pollutant levels require exposure protection.",
-      practicalAction: parsed.practicalAction || "Limit outdoor exposure and run air filtration.",
-      estimatedImpact: parsed.estimatedImpact,
-      confidence: parsed.confidence === "low" || parsed.confidence === "medium" ? parsed.confidence : "high",
-      sourceReferences: Array.isArray(parsed.sourceReferences) && parsed.sourceReferences.length > 0
-        ? parsed.sourceReferences
-        : ["CPCB Air Quality Guidelines", "WHO Global Ambient Air Standards"],
-      isDeterministicFallback: false,
-    };
-  } catch (err: any) {
-    if (err.name === "AbortError") {
+    if (isAbort) {
       console.warn(`[Copilot Diagnostics] Gemini API request timed out after ${timeoutMs}ms; engaging deterministic rules engine.`);
     } else {
-      console.warn("[Copilot Diagnostics] Gemini API call encountered error; engaging deterministic rules engine:", err?.message || err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.warn("[Copilot Diagnostics] Gemini API call encountered error; engaging deterministic rules engine:", errMsg);
     }
     return generateDeterministicCopilotPlan(userQuery, aqiData, profile);
   } finally {

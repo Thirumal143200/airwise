@@ -7,7 +7,6 @@ import {
   ShieldAlert,
   Database,
   Lock,
-  ExternalLink,
   X,
 } from "lucide-react";
 
