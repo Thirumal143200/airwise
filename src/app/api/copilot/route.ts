@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CopilotRequestSchema } from "@/types";
+import { AirQualityData, CopilotRequestSchema, UserProfile } from "@/types";
 import { askGeminiCopilot, generateDeterministicCopilotPlan } from "@/lib/ai/geminiClient";
 import { checkRateLimit, createSafeErrorResponse, sanitizeInput } from "@/lib/security";
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     console.log(`[Copilot API] Processing copilot query: messageLength=${cleanMessage.length}`);
     const plan = await askGeminiCopilot(
       cleanMessage,
-      currentAqiData as any,
+      currentAqiData as unknown as AirQualityData,
       userProfile
     );
 
@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     const parsedBody = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
     const fallbackPlan = generateDeterministicCopilotPlan(
       typeof parsedBody.message === "string" ? sanitizeInput(parsedBody.message, 1000) : "general health advice",
-      parsedBody.currentAqiData as any,
-      parsedBody.userProfile as any
+      parsedBody.currentAqiData as unknown as AirQualityData,
+      parsedBody.userProfile as unknown as UserProfile
     );
     const response = NextResponse.json({ plan: fallbackPlan });
     response.headers.set("X-RateLimit-Remaining", remaining.toString());

@@ -297,8 +297,70 @@ export const CopilotPlanResponseSchema = z.object({
   isDeterministicFallback: z.boolean().optional(),
 });
 
+export const PollutantReadingSchema = z
+  .object({
+    name: z.string().optional(),
+    chemicalFormula: z.string().optional(),
+    value: z.number().min(0),
+    unit: z.string().optional(),
+    whoGuideline24h: z.number().optional(),
+    subIndex: z.number().optional(),
+    status: z.enum(["safe", "moderate", "unhealthy", "hazardous"]).optional(),
+    healthImplications: z.string().optional(),
+  })
+  .passthrough();
+
+export const CopilotAqiContextSchema = z
+  .object({
+    location: z
+      .object({
+        name: z.string().min(1),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        country: z.string().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+      })
+      .passthrough(),
+    aqi: z.number().min(0).max(1000),
+    scale: z.enum(["IN_CPCB", "US_EPA", "EU_AQI", "WHO"]).optional(),
+    tier: z
+      .enum(["good", "moderate", "poor", "very_poor", "severe", "hazardous"])
+      .optional(),
+    tierLabel: z.string().optional(),
+    healthSummary: z.string().optional(),
+    dominantPollutant: z.string().optional(),
+    pollutants: z
+      .object({
+        pm25: PollutantReadingSchema.optional(),
+        pm10: PollutantReadingSchema.optional(),
+        no2: PollutantReadingSchema.optional(),
+        so2: PollutantReadingSchema.optional(),
+        co: PollutantReadingSchema.optional(),
+        o3: PollutantReadingSchema.optional(),
+      })
+      .passthrough()
+      .optional(),
+    hourlyForecast: z.array(z.unknown()).optional(),
+    timestamp: z.string().optional(),
+    source: z.string().optional(),
+    dataSourceType: z
+      .enum([
+        "observed_ground",
+        "atmospheric_model",
+        "satellite_estimated",
+        "cached_reference",
+      ])
+      .optional(),
+    dataFreshness: z
+      .enum(["live", "recent", "cached", "offline_reference", "offline_fallback"])
+      .optional(),
+    limitations: z.array(z.string()).optional(),
+  })
+  .passthrough();
+
 export const CopilotRequestSchema = z.object({
   message: z.string().min(1).max(1000),
-  currentAqiData: z.record(z.string(), z.unknown()).optional(),
+  currentAqiData: CopilotAqiContextSchema.optional(),
   userProfile: UserProfileSchema.optional(),
 });

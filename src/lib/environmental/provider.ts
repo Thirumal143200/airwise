@@ -21,6 +21,13 @@ const cache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
 const MAX_CACHE_ENTRIES = 100; // Upper limit preventing memory bloat
 
+/**
+ * In-memory bounded cache for environmental telemetry.
+ * Eviction Strategy:
+ * 1. Time-to-Live (TTL): Purges expired entries (CACHE_TTL_MS = 20 mins) when capacity limit (100) is reached.
+ * 2. FIFO Fallback: If cache is still at capacity after purging expired keys, evicts the oldest-inserted key
+ *    (first key in Map insertion order). Note: this operates on insertion-order FIFO, not access-order LRU.
+ */
 function setBoundedCache(key: string, data: AirQualityData, expiresAt: number): void {
   if (cache.size >= MAX_CACHE_ENTRIES) {
     const now = Date.now();
