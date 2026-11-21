@@ -140,8 +140,6 @@ echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
 ### Running Automated Tests
 ```bash
 # Execute the full Vitest suite (33 tests across 6 domains)
