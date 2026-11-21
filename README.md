@@ -32,7 +32,7 @@ During severe winter smog episodes in cities like Delhi-NCR, Lahore, Beijing, an
 
 ```mermaid
 flowchart TD
-    User["User Interface (Next.js 14 + Tailwind CSS)"]
+    User["User Interface (Next.js 15 + React 19 + Tailwind CSS)"]
     
     subgraph Client["Client-Side Presentation Layer"]
         Hero["Live AQI Hero Card & Risk Multi-Coding"]
@@ -144,7 +144,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Running Automated Tests
 ```bash
-# Execute the full Vitest suite (24 tests across 6 domains)
+# Execute the full Vitest suite (33 tests across 6 domains)
 npm test
 
 # Run TypeScript typecheck
@@ -171,7 +171,7 @@ npm run start
 - **Location Privacy & Fuzzing**: User coordinates are fuzzed to 3 decimal places (~100m to 1km resolution) to avoid recording exact domestic coordinates.
 - **Input Sanitization & Injection Defense**: Control tags and delimiter patterns (`<<<`, `>>>`, `[SYSTEM]`, `IGNORE PREVIOUS INSTRUCTIONS`) are stripped.
 - **Sliding-Window Rate Limiting**: In-memory rate limiting restricts API requests to 30 requests per minute per client with automated cache cleanup.
-- **Lightweight Repository**: Configured `.gitignore` guarantees that build artifacts (`.next`, `node_modules`, `coverage`) are excluded, keeping repository size well below the 10 MB competition limit (actual Git object size: ~246 KiB).
+- **Lightweight Repository**: Configured `.gitignore` guarantees that build artifacts (`.next`, `node_modules`, `coverage`) are excluded, keeping repository size well below the 10 MB competition limit (actual Git object size: ~463 KiB).
 
 ---
 
@@ -179,24 +179,24 @@ npm run start
 
 | Test Suite | Tests | Description | Result |
 |---|---|---|---|
-| `tests/aqiScales.test.ts` | 6 | Continuous CPCB interpolation, EPA NAAQS, multi-pollutant sub-indices (SO2, CO, O3), and tier tags. | **PASSED** (22ms) |
-| `tests/routineEngine.test.ts` | 4 | 4 time slots, severe AQI morning workout cancellation, midday window, and 6-field contract. | **PASSED** (24ms) |
-| `tests/impactCalculator.test.ts` | 4 | Avoided distance, fuel savings, CO2e math, EPA tree offsets, and disclaimers. | **PASSED** (17ms) |
-| `tests/securityAndSanitization.test.ts` | 4 | Prompt injection defense, coordinate fuzzing, and sliding-window rate limiting. | **PASSED** (51ms) |
-| `tests/copilotFallback.test.ts` | 3 | Pediatric safety priority, exercise cancellation, and offline fallback schema. | **PASSED** (35ms) |
-| `tests/provider.test.ts` | 3 | Offline reference fallback, atmospheric model tagging, and geocoding search. | **PASSED** (215ms) |
-| **Total** | **24** | **Complete coverage across all Challenge 6 priorities** | **100% PASSED** |
+| `tests/aqiScales.test.ts` | 6 | Continuous CPCB interpolation, EPA NAAQS, multi-pollutant sub-indices (SO2, CO, O3), and tier tags. | **PASSED** |
+| `tests/routineEngine.test.ts` | 4 | 4 time slots, severe AQI morning workout cancellation, midday window, and 6-field contract. | **PASSED** |
+| `tests/impactCalculator.test.ts` | 4 | Avoided distance, fuel savings, CO2e math, EPA tree offsets, and disclaimers. | **PASSED** |
+| `tests/securityAndSanitization.test.ts` | 4 | Prompt injection defense, coordinate fuzzing, and sliding-window rate limiting. | **PASSED** |
+| `tests/copilotFallback.test.ts` | 12 | Gemini 3.8 Flash orchestration, 404/429/timeout fallbacks, markdown sanitizer, and pediatric priority. | **PASSED** |
+| `tests/provider.test.ts` | 3 | Offline reference fallback, atmospheric model tagging, and geocoding search. | **PASSED** |
+| **Total** | **33** | **Complete coverage across all Challenge 6 priorities** | **100% PASSED** |
 
 ---
 
 ## 7. Submission Deliverables & Documentation
 
-- **Challenge Analysis**: [`docs/CHALLENGE_ANALYSIS.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/CHALLENGE_ANALYSIS.md)
-- **Quality & Security Audit**: [`docs/QUALITY_AUDIT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/QUALITY_AUDIT.md)
-- **Originality & Attribution**: [`docs/ORIGINALITY_AND_ATTRIBUTION.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/ORIGINALITY_AND_ATTRIBUTION.md)
-- **Technical Validation Report**: [`docs/FINAL_VALIDATION_REPORT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/FINAL_VALIDATION_REPORT.md)
-- **Submission Checklist**: [`docs/FINAL_SUBMISSION_CHECKLIST.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/FINAL_SUBMISSION_CHECKLIST.md)
-- **Demo Video Script**: [`docs/DEMO_VIDEO_SCRIPT.md`](file:///c:/Users/thiru/Downloads/Challenge%206/docs/DEMO_VIDEO_SCRIPT.md)
+- **Challenge Analysis**: [`docs/CHALLENGE_ANALYSIS.md`](docs/CHALLENGE_ANALYSIS.md)
+- **Quality & Security Audit**: [`docs/QUALITY_AUDIT.md`](docs/QUALITY_AUDIT.md)
+- **Originality & Attribution**: [`docs/ORIGINALITY_AND_ATTRIBUTION.md`](docs/ORIGINALITY_AND_ATTRIBUTION.md)
+- **Technical Validation Report**: [`docs/FINAL_VALIDATION_REPORT.md`](docs/FINAL_VALIDATION_REPORT.md)
+- **Submission Checklist**: [`docs/FINAL_SUBMISSION_CHECKLIST.md`](docs/FINAL_SUBMISSION_CHECKLIST.md)
+- **Demo Video Script**: [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md)
 
 ---
 
