@@ -10,12 +10,12 @@
 
 | Requirement | Status | Verification & Evidence |
 |---|---|---|
-| **Public GitHub Repository** | **COMPLETED** | Published at `https://github.com/Thirumal143200/airwise` (Branch: `main`). |
-| **Repository Size < 10 MB** | **VERIFIED** | Build artifacts strictly ignored; total Git object store: 245.98 KiB. |
-| **Working Live Deployment URL** | READY FOR DEPLOY | Next.js 14 App Router production build validated. Compatible with Vercel, Netlify, or AWS Amplify. |
+| **Public GitHub Repository** | **COMPLETED** | Published at `https://github.com/Thirumal143200/airwise` (Branches: `main`, `security/next15-migration`). |
+| **Repository Size < 10 MB** | **VERIFIED** | Build artifacts strictly ignored; total Git object store: ~463 KiB. |
+| **Working Live Deployment URL** | **LIVE & OPERATIONAL** | Deployed at `https://airwise-258m.onrender.com/` on Render (Next.js 15.5.29 + React 19). |
 | **Demo Video Link** | SCRIPT COMPLETED | Comprehensive 3.5-minute demo video script prepared in `docs/DEMO_VIDEO_SCRIPT.md`. |
 | **Description of Changes** | DOCUMENTED | Full technical and architectural changelog provided below. |
-| **GenAI Services Disclosed** | DOCUMENTED | Google Gemini 1.5/2.5 Flash integrated server-side with structured schemas + deterministic rules engine fallback. |
+| **GenAI Services Disclosed** | DOCUMENTED | Google Gemini 3.8 Flash (`gemini-3.8-flash`) integrated server-side with structured schemas + deterministic rules engine fallback. |
 | **LinkedIn Post URL** | TEMPLATE PREPARED | Ready for participant publication upon final deployment. |
 
 ---
