@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#021f18" />
+      <stop offset="45%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#032622" />
+    </linearGradient>
+    <linearGradient id="ogCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.09" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.03" />
+    </linearGradient>
+    <linearGradient id="ogTeal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2dd4bf" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <linearGradient id="ogEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="ogGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#ogBg)" />
+
+  <!-- Atmospheric Glow Orbs -->
+  <circle cx="150" cy="120" r="260" fill="#059669" opacity="0.25" filter="url(#ogGlow)" />
+  <circle cx="1050" cy="500" r="280" fill="#0d9488" opacity="0.2" filter="url(#ogGlow)" />
+  <circle cx="600" cy="315" r="340" fill="#047857" opacity="0.12" filter="url(#ogGlow)" />
+
+  <!-- Subtle Radial Grid Pattern -->
+  <g stroke="#ffffff" stroke-opacity="0.04" stroke-width="1">
+    <line x1="0" y1="105" x2="1200" y2="105" />
+    <line x1="0" y1="210" x2="1200" y2="210" />
+    <line x1="0" y1="315" x2="1200" y2="315" />
+    <line x1="0" y1="420" x2="1200" y2="420" />
+    <line x1="0" y1="525" x2="1200" y2="525" />
+    <line x1="200" y1="0" x2="200" y2="630" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="600" y1="0" x2="600" y2="630" />
+    <line x1="800" y1="0" x2="800" y2="630" />
+    <line x1="1000" y1="0" x2="1000" y2="630" />
+  </g>
+
+  <!-- Category Badge -->
+  <g transform="translate(80, 60)">
+    <rect width="320" height="36" rx="18" fill="#10b981" fill-opacity="0.15" stroke="#34d399" stroke-width="1.5" stroke-opacity="0.5" />
+    <circle cx="18" cy="18" r="5" fill="#34d399" />
+    <text x="34" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#a7f3d0" text-transform="uppercase">
+      PromptWars Virtual • Challenge 6
+    </text>
+  </g>
+
+  <!-- Brand Title Section -->
+  <g transform="translate(80, 150)">
+    <!-- Main Logo Icon Mark -->
+    <g transform="translate(0, 0)">
+      <rect width="90" height="90" rx="24" fill="#064e3b" stroke="#10b981" stroke-width="2.5" />
+      <path d="M 22 36 C 36 28, 52 28, 64 34 C 70 38, 74 36, 74 32" fill="none" stroke="url(#ogTeal)" stroke-width="4" stroke-linecap="round" />
+      <path d="M 18 48 C 30 40, 48 40, 58 46 C 62 50, 66 50, 66 46" fill="none" stroke="url(#ogTeal)" stroke-width="3" stroke-linecap="round" />
+      <path d="M 50 30 C 64 40, 66 60, 52 70 C 44 76, 32 72, 30 64 C 28 54, 38 36, 50 30 Z" fill="url(#ogEmerald)" stroke="#a7f3d0" stroke-width="2" />
+      <path d="M 50 32 C 46 48, 42 58, 34 66" fill="none" stroke="#ecfdf5" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 72 56 Q 72 64, 64 64 Q 72 64, 72 72 Q 72 64, 80 64 Q 72 64, 72 56 Z" fill="#6ee7b7" />
+    </g>
+
+    <!-- App Title Text -->
+    <text x="110" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="58" font-weight="900" letter-spacing="-1" fill="#ffffff">
+      Air<tspan fill="#34d399">Wise</tspan>
+    </text>
+    <text x="115" y="85" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" letter-spacing="1" fill="#9ca3af" text-transform="uppercase">
+      Urban Air Quality Intelligence &amp; Family Safety Assistant
+    </text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="80" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" fill="#e5e7eb">
+    "Understand your air. <tspan fill="#5eead4" font-weight="700">Protect your routine.</tspan> Make cleaner choices."
+  </text>
+
+  <!-- Feature Pillar Grid (6 Feature Cards) -->
+  <g transform="translate(80, 325)">
+    <!-- Card 1: Dual AQI Standards -->
+    <g transform="translate(0, 0)">
+      <rect width="320" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Dual AQI Standards</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">Indian CPCB NAAQI &amp; US EPA</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">6 Pollutants + WHO 2021 Benchmarks</text>
+    </g>
+
+    <!-- Card 2: Diurnal Routine Planner -->
+    <g transform="translate(340, 0)">
+      <rect width="320" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Diurnal Routine Planner</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">Morning • Midday • Evening • Bedtime</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">Inversion-Aware Routine Optimization</text>
+    </g>
+
+    <!-- Card 3: Tiered Indoor Air -->
+    <g transform="translate(680, 0)">
+      <rect width="360" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Tiered Indoor Clean Air</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">Zero-Cost • $35 DIY Corsi-Rosenthal • HEPA</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">Anti-Ozone Ionizer Warnings</text>
+    </g>
+
+    <!-- Card 4: Exposure-Emission Balancing -->
+    <g transform="translate(0, 100)">
+      <rect width="320" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Sustainable Alternatives</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">Exposure-Emission Paradox Balancing</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">No dangerous exercise in severe smog</text>
+    </g>
+
+    <!-- Card 5: Transparent Impact Calculator -->
+    <g transform="translate(340, 100)">
+      <rect width="320" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Impact Calculator</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">DEFRA 2024 &amp; ARAI Emission Models</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">Visible formulas &amp; EPA Tree Equiv.</text>
+    </g>
+
+    <!-- Card 6: GenAI Copilot -->
+    <g transform="translate(680, 100)">
+      <rect width="360" height="85" rx="14" fill="url(#ogCard)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+      <text x="20" y="32" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#5eead4">Google Gemini 3.8 Flash</text>
+      <text x="20" y="55" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#9ca3af">Structured JSON Schema + 8s Timeout</text>
+      <text x="20" y="72" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#34d399">Deterministic Offline Rules Engine Fallback</text>
+    </g>
+  </g>
+
+  <!-- Bottom Architecture & Quality Bar -->
+  <g transform="translate(80, 545)">
+    <line x1="0" y1="0" x2="1040" y2="0" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1" />
+    <text x="0" y="28" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#9ca3af">
+      PRODUCTION STACK:
+    </text>
+    <text x="140" y="28" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">
+      Next.js 15.5.29 <tspan fill="#34d399">•</tspan> React 19 <tspan fill="#34d399">•</tspan> Strict TypeScript <tspan fill="#34d399">•</tspan> Tailwind CSS <tspan fill="#34d399">•</tspan> Vitest (33/33 Tests Passed) <tspan fill="#34d399">•</tspan> WCAG 2.1 AA
+    </text>
+    <text x="1040" y="28" text-anchor="end" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#6ee7b7">
+      MIT Licensed • Open Source
+    </text>
+  </g>
+</svg>

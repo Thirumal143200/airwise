@@ -1,6 +1,10 @@
 # AirWise — Urban Air Quality Intelligence & Family Safety Assistant
 > **"Understand your air. Protect your routine. Make cleaner choices."**
 
+<p align="center">
+  <img src="public/og-image.svg" alt="AirWise — Urban Air Quality Intelligence & Family Safety Assistant" width="100%" />
+</p>
+
 [![Production Build](https://img.shields.io/badge/Next.js-15.5-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-5.6_Strict-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Vitest Passing](https://img.shields.io/badge/Tests-33%2F33_Passed-emerald?style=flat&logo=vitest)](https://vitest.dev/)
